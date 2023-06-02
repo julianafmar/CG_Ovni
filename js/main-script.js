@@ -14,7 +14,7 @@ function createScene(){
     'use strict';
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xFEEAC2);
+    scene.background = new THREE.Color(0xFFFFFF);
 
 }
 
@@ -184,36 +184,18 @@ function init() {
     createScene();
     createCamera();
     generateFieldTexture();
+    generateSkyTexture();
     currentTexture = fieldTexture;
 
     var geometry = new THREE.PlaneGeometry(10, 10);
     material = new THREE.MeshBasicMaterial({ map: currentTexture });
     mesh = new THREE.Mesh(geometry, material);
+    mesh.position.y = - 7;
     scene.add(mesh);
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
     window.addEventListener("keyup", onKeyUp);
-
-    // Adicionando uma geometria para representar o terreno
-    /*const groundGeometry = new THREE.PlaneGeometry(10, 10);
-    const groundTexture = new THREE.TextureLoader().load('images/woodland.jpg');
-    const groundMaterial = new THREE.MeshBasicMaterial({ map: groundTexture });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2; // Rotação para posicionar o plano horizontalmente
-    scene.add(ground);
-
-    // Adicionando árvores dispersas no cenário
-    const treeGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
-    const treeTexture = new THREE.TextureLoader().load('images/trunk.jpg');
-    const treeMaterial = new THREE.MeshBasicMaterial({ map: treeTexture });
-    for (let i = 0; i < 20; i++) {
-        const tree = new THREE.Mesh(treeGeometry, treeMaterial);
-        tree.position.x = Math.random() * 10 - 5; // Posição x aleatória
-        tree.position.z = Math.random() * 10 - 5; // Posição z aleatória
-        tree.position.y = 0.5; // Altura do tronco da árvore
-        scene.add(tree);
-    }*/
 
     animate();
 
@@ -263,6 +245,10 @@ function onKeyDown(e) {
             break;
     }
 
+    mesh.needsUpdate = true;
+
+    render();
+
 }
 
 ///////////////////////
@@ -272,3 +258,99 @@ function onKeyUp(e){
     'use strict';
 
 }
+
+
+/*
+
+// Variáveis globais
+var scene, camera, renderer;
+var fieldTexture, terrainTexture;
+var terrainMaterial;
+
+// Tamanho do terreno
+var terrainWidth = 10;
+var terrainHeight = 10;
+
+init();
+generateTextures();
+generateTerrain();
+animate();
+
+function init() {
+    scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Adicionar luz ambiente
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    // Adicionar luz direcional
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(0, 1, 0);
+    scene.add(directionalLight);
+}
+
+function generateTextures() {
+    // Gerar a textura do campo floral
+    // ...
+
+    var textureLoader = new THREE.TextureLoader();
+    var fieldTextureImage = textureLoader.load('path/to/field_texture.jpg', function() {
+        fieldTexture = new THREE.Texture(fieldTextureImage);
+        fieldTexture.wrapS = THREE.RepeatWrapping;
+        fieldTexture.wrapT = THREE.RepeatWrapping;
+        fieldTexture.repeat.set(terrainWidth / 2, terrainHeight / 2);
+        fieldTexture.needsUpdate = true;
+    });
+
+    // Gerar a textura do terreno
+    var terrainTextureImage = textureLoader.load('path/to/terrain_heightmap.png', function() {
+        terrainTexture = new THREE.Texture(terrainTextureImage);
+        terrainTexture.wrapS = THREE.RepeatWrapping;
+        terrainTexture.wrapT = THREE.RepeatWrapping;
+        terrainTexture.repeat.set(terrainWidth, terrainHeight);
+        terrainTexture.needsUpdate = true;
+    });
+}
+
+function generateTerrain() {
+    var terrainGeometry = new THREE.PlaneGeometry(terrainWidth, terrainHeight, 64, 64);
+    var terrainVertices = terrainGeometry.attributes.position.array;
+    var terrainIndices = terrainGeometry.index.array;
+
+    // Aplicar o mapa de alturas ao terreno
+    for (var i = 0; i < terrainVertices.length; i += 3) {
+        var x = terrainVertices[i];
+        var z = terrainVertices[i + 2];
+        var height = getTerrainHeight(x, z); // Função para obter a altura do mapa de alturas
+
+        terrainVertices[i + 1] = height;
+    }
+
+    // Criar o material do terreno com a textura do campo floral
+    terrainMaterial = new THREE.MeshBasicMaterial({ map: fieldTexture });
+
+    // Criar a malha do terreno
+    var terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
+    scene.add(terrainMesh);
+}
+
+function getTerrainHeight(x, z) {
+    // Função para obter a altura do mapa de alturas
+    // Implemente aqui a lógica para obter a altura do mapa de alturas
+    // Pode usar a posição (x, z) para mapear para as coordenadas do mapa de alturas
+
+    return 0; // Retorna uma altura padrão para fins de exemplo
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+*/
