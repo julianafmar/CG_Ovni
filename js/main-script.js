@@ -4,8 +4,7 @@
 var renderer, scene, mesh, material;
 var fieldTexture, skyTexture, currentTexture;
 
-var cameras = [];
-var activeCamera = 0;
+var camera;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -24,35 +23,14 @@ function createScene(){
 function createCamera(){
     'use strict';
 
-    // Camera frontal
-    const cameraFrontal = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
-    cameraFrontal.position.set(0, 0, 500);
-    cameraFrontal.lookAt(scene.position);
-    cameras.push(cameraFrontal);
-
-    // Camera lateral
-    const cameraLateral = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
-    cameraLateral.position.set(-500, 0, 0);
-    cameraLateral.lookAt(scene.position);
-    cameras.push(cameraLateral);
-
-    // Camera de topo
-    const cameraTopo = new THREE.OrthographicCamera(window.innerWidth/-40, window.innerWidth/40, window.innerHeight/40, window.innerHeight/-40, 1, 1000);
-    cameraTopo.position.set(0, 500, -5);
-    cameraTopo.lookAt(0, 0, -5);
-    cameras.push(cameraTopo);
-
-    // Camera isometrica (projecao ortogonal)
-    const cameraIsometrica = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
-    cameraIsometrica.position.set(500, 500, 500);
-    cameraIsometrica.lookAt(scene.position);
-    cameras.push(cameraIsometrica);
-
-    // Camera isometrica (projecao perspectiva)
-    const cameraPerspectiva = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
-    cameraPerspectiva.position.set(20, 20, 20);
-    cameraPerspectiva.lookAt(scene.position);
-    cameras.push(cameraPerspectiva);
+    camera = new THREE.PerspectiveCamera(70,
+        window.innerWidth / window.innerHeight,
+        1,
+        1000);
+    camera.position.x = 50;
+    camera.position.y = 50;
+    camera.position.z = 50;
+    camera.lookAt(scene.position);
 
 }
 
@@ -163,7 +141,7 @@ function update(){
 function render() {
     'use strict';
 
-    renderer.render(scene, cameras[activeCamera]);
+    renderer.render(scene, camera);
 
     update();
 
@@ -222,8 +200,8 @@ function onResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     if (window.innerHeight > 0 && window.innerWidth > 0) {
-        cameras[activeCamera].aspect = window.innerWidth / window.innerHeight;
-        cameras[activeCamera].updateProjectionMatrix();
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
     }
 
 }
