@@ -3,7 +3,7 @@
 //////////////////////
 var renderer, scene, mesh, geometry, material;
 var fieldTexture, skyTexture, currentTexture;
-var house = [];
+var house;
 
 var camera;
 
@@ -112,6 +112,80 @@ function generateSkyTexture() {
     skyTexture.needsUpdate = true;
 }
 
+function createHouse() {
+
+    const vertices = houseTriangles.flat();
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+    // DUVIDA: ver material(cores não funcionam)
+    /*var houseMaterial = new THREE.MeshStandardMaterial({
+        color: 0xC8A2C8,
+        opacity: 0.3,
+        metalness: 0.2,
+        roughness: 0.6
+    });*/
+          
+
+    var houseMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xe4e3e3, wireframe: false }));
+    house.add(houseMesh);
+    //scene.add(houseMesh);
+
+    var geometry_roof = new THREE.BufferGeometry();
+    geometry_roof.setAttribute('position', new THREE.Float32BufferAttribute(roof, 3));
+
+    /*var roofMaterial = new THREE.MeshStandardMaterial({
+        color: 0x000000,
+        roughness: 1
+    });*/
+
+    var roofMesh = new THREE.Mesh(geometry_roof, new THREE.MeshBasicMaterial({ color: 0xff8a3d, wireframe: false }));
+    house.add(roofMesh);
+
+    var geometry_chimney1 = new THREE.BufferGeometry();
+    geometry_chimney1.setAttribute('position', new THREE.Float32BufferAttribute(chimney1, 3));
+    //material igual ao da casa
+
+    var chimney1_mesh = new THREE.Mesh(geometry_chimney1, new THREE.MeshBasicMaterial({ color: 0xffbcbc, wireframe: false }));
+    house.add(chimney1_mesh);
+
+    var geometry_chimney2 = new THREE.BufferGeometry();
+    geometry_chimney2.setAttribute('position', new THREE.Float32BufferAttribute(chimney2, 3));
+    //material igual ao da casa
+
+    var chimney2_mesh = new THREE.Mesh(geometry_chimney2, new THREE.MeshBasicMaterial({ color: 0xffbcbc, wireframe: false }));
+    house.add(chimney2_mesh);
+
+    var geometry_window1 = new THREE.BufferGeometry();
+    geometry_window1.setAttribute('position', new THREE.Float32BufferAttribute(window1, 3));
+
+    /*var windowMaterial = new THREE.MeshStandardMaterial({
+        color: 0xFFFFFF,
+        transparent: true,
+        opacity: 0.3,
+        metalness: 0.2,
+        roughness: 0.0
+    });*/
+
+    var window1_mesh = new THREE.Mesh(geometry_window1, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
+    house.add(window1_mesh);
+
+    var geometry_window2 = new THREE.BufferGeometry();
+    geometry_window2.setAttribute('position', new THREE.Float32BufferAttribute(window2, 3));
+
+    var window2_mesh = new THREE.Mesh(geometry_window2, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
+    house.add(window2_mesh);
+
+    var geometry_door = new THREE.BufferGeometry();
+    geometry_door.setAttribute('position', new THREE.Float32BufferAttribute(door, 3));
+
+    var door_mesh = new THREE.Mesh(geometry_door, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
+    house.add(door_mesh);
+
+    scene.add(house);
+}
+
 function createTrees(){
     var sizes = [1, 1.3, 1.5, 1.7, 2];
     const treePositions = [];
@@ -196,27 +270,6 @@ function createLeaves(obj, x, y, z, size){
     mesh = new THREE.Mesh(geometry, leaves_material);
     mesh.position.set(x, y, z);
     obj.add(mesh);
-}
-
-function createHouse() {
-
-    const vertices = houseTriangles.flat();
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-
-    // DUVIDA: ver material(cores não funcionam)
-    var houseMaterial = new THREE.MeshStandardMaterial({
-        color: 0xC8A2C8,
-        opacity: 0.3,
-        metalness: 0.2,
-        roughness: 0.6
-    });
-          
-
-    var houseMesh = new THREE.Mesh(geometry, houseMaterial);
-    
-    scene.add(houseMesh);
 }
 
 function createOvni() {
@@ -315,6 +368,8 @@ function init() {
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
+    house = new THREE.Object3D();
 
     createScene();
     createCamera();
