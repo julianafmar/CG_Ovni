@@ -327,6 +327,23 @@ function createOvni() {
     scene.add(ovni);
 }
 
+function createMoon() {
+    'use strict';
+
+    var moonGeometry = new THREE.SphereGeometry(7, 32, 32);
+    var moonMaterial = new THREE.MeshLambertMaterial({ color: 0xFBFEAA, emissive: 0xF8FC91 });
+    var moon = new THREE.Mesh(moonGeometry, moonMaterial);
+    moon.position.set(30, 50, 0);
+    scene.add(moon);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(1, 1, 1); // Set the position of the light
+    scene.add(directionalLight);
+
+    const ambientLight = new THREE.AmbientLight(0x333333); // Low intensity ambient light
+    scene.add(ambientLight);
+}
+
 //////////////////////
 /* CHECK COLLISIONS */
 //////////////////////
@@ -382,6 +399,7 @@ function init() {
     createHouse();
     createOvni();
     createTrees();
+    createMoon();
     //generateFieldTexture();
     //generateSkyTexture();
     //currentTexture = fieldTexture;
