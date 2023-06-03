@@ -3,6 +3,7 @@
 //////////////////////
 var renderer, scene, mesh, material;
 var fieldTexture, skyTexture, currentTexture;
+var house = [];
 
 var camera;
 
@@ -111,6 +112,28 @@ function generateSkyTexture() {
     skyTexture.needsUpdate = true;
 }
 
+function createHouse() {
+
+    const vertices = houseTriangles.flat();
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+    // DUVIDA: ver material(cores não funcionam)
+    var houseMaterial = new THREE.MeshStandardMaterial({
+        color: 0xC8A2C8,
+        opacity: 0.3,
+        metalness: 0.2,
+        roughness: 0.6
+    });
+          
+
+    var houseMesh = new THREE.Mesh(geometry, houseMaterial);
+    
+    scene.add(houseMesh);
+
+}
+
 //////////////////////
 /* CHECK COLLISIONS */
 //////////////////////
@@ -161,15 +184,16 @@ function init() {
 
     createScene();
     createCamera();
-    generateFieldTexture();
-    generateSkyTexture();
-    currentTexture = fieldTexture;
+    createHouse();
+    //generateFieldTexture();
+    //generateSkyTexture();
+    //currentTexture = fieldTexture;
 
-    var geometry = new THREE.PlaneGeometry(10, 10);
+    /*var geometry = new THREE.PlaneGeometry(10, 10);
     material = new THREE.MeshBasicMaterial({ map: currentTexture });
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.y = - 7;
-    scene.add(mesh);
+    scene.add(mesh);*/
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
