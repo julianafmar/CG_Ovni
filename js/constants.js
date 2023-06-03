@@ -13,12 +13,12 @@ const lightRadius = 0.5;
 const lightNumber = 6;
 
 //HOUSE 
-const house_lenght = 13;
+const house_length = 13;
 const house_height = 4;
 const house_width = 7;
 
 //HOUSE ceiling
-const ceiling_lenght = 13;
+const ceiling_length = 13;
 const ceiling_height = 2;
 const ceiling_width = 7;
 
@@ -39,10 +39,13 @@ const default_width = 0.2;
 //TREE
 const main_log_radius = 0.75;
 const main_log_height = 4;
+const trunk_material = new THREE.MeshBasicMaterial({ color: 0x715A17 });
 
 //TREE side log
 const side_log_radius = 0.5;
 const side_log_height = 2.5;
 
 //TREE leaves
-const leaves_radius = 3.5; //scale y = 1/1.75
+const leaves_radius_X = 3.5/2; //scale y = 1/1.75
+const leaves_radius_Y = 1;
+const leaves_material = new THREE.MeshBasicMaterial({ color: 0x1C9013 });

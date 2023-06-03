@@ -1,7 +1,7 @@
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
-var renderer, scene, mesh, material;
+var renderer, scene, mesh, geometry, material;
 var fieldTexture, skyTexture, currentTexture;
 var house = [];
 
@@ -110,6 +110,92 @@ function generateSkyTexture() {
 
     skyTexture = new THREE.Texture(canvas);
     skyTexture.needsUpdate = true;
+}
+
+function createTrees(){
+    var sizes = [1, 1.3, 1.5, 1.7, 2];
+    const treePositions = [];
+    const minX = -50;
+    const maxX = 50;
+    const minZ = -40;
+    const maxZ = 40;
+    const numTrees = 25;
+    const minTreeDistance = 10;
+
+    for (let i = 1; i < numTrees; i++){
+        let x;
+        let z;
+        let uniquePosition = false;
+
+        while (!uniquePosition){
+            x = Math.random() * (maxX - minX) + minX;
+            if (x <= 18 && x >= -5)
+                continue;
+            console.log("x: " + x);
+            z = Math.random() * (maxZ - minZ) + minZ;
+            if (z <= 11 && z >= -5)
+                continue;
+            console.log("z: " + z);
+            if (!treePositions.includes({x, z}) && hasMinimumDistance(x, z, treePositions, minTreeDistance)){
+                uniquePosition = true;
+                treePositions.push({x, z});
+            }
+        }
+        let size = sizes[Math.floor(Math.random()*sizes.length)];
+        createTree(x, 0, z, size, Math.random());
+    }
+}
+
+function hasMinimumDistance(x, z, treePositions, minTreeDistance) {
+    for (let i = 0; i < treePositions.length; i++) {
+        const position = treePositions[i];
+        const distance = Math.sqrt(Math.pow(x - position.x, 2) + Math.pow(z - position.z, 2));
+        if (distance < minTreeDistance) {
+        return false; // Position does not meet minimum distance requirement
+        }
+    }
+    return true; // Position meets minimum distance requirement
+}
+
+function createTree(x, y, z, size, rot){
+    'use strict';
+
+    var tree = new THREE.Object3D();
+    tree.name = 'tree';
+
+    geometry = new THREE.CylinderGeometry(main_log_radius*size, main_log_radius*size, main_log_height*size, 32);
+    mesh = new THREE.Mesh(geometry, trunk_material);
+    tree.add(mesh);
+
+    createBranch(tree, -main_log_radius, main_log_height/2*size, 0, Math.PI/6, size);
+    createBranch(tree, main_log_radius, main_log_height/2*size, 0, -Math.PI/6, size);
+
+    createLeaves(tree, (-main_log_radius-side_log_radius-1)*size, (main_log_height/2 + side_log_height/2)*size, 0, size);
+    createLeaves(tree, (main_log_radius+side_log_radius+1)*size, (main_log_height/2 + side_log_height/2)*size , 0, size);
+    createLeaves(tree, 0, main_log_height*size, 0, size);
+
+    tree.position.set(x, y, z);
+    tree.rotateY(Math.PI*rot)
+    
+    scene.add(tree);
+}
+
+function createBranch(obj, x, y, z, rot, size){
+    geometry = new THREE.CylinderGeometry(side_log_radius, side_log_radius, side_log_height*size, 32);
+    geometry.rotateZ(rot);
+    mesh = new THREE.Mesh(geometry, trunk_material);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function createLeaves(obj, x, y, z, size){
+    'use strict';
+
+    geometry = new THREE.SphereGeometry(leaves_radius_X*size, 32, 32);
+    geometry.scale(1, leaves_radius_Y*size / (leaves_radius_X*size), 1);
+    mesh = new THREE.Mesh(geometry, leaves_material);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
 }
 
 function createHouse() {
@@ -234,6 +320,7 @@ function init() {
     createCamera();
     createHouse();
     createOvni();
+    createTrees();
     //generateFieldTexture();
     //generateSkyTexture();
     //currentTexture = fieldTexture;
