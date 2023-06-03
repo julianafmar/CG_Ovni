@@ -131,7 +131,55 @@ function createHouse() {
     var houseMesh = new THREE.Mesh(geometry, houseMaterial);
     
     scene.add(houseMesh);
+}
 
+function createOvni() {
+    'use strict';
+
+    var ovni = new THREE.Object3D();
+
+    var bodyGeometry = new THREE.SphereGeometry(bodyRadius, 32, 32);
+    bodyGeometry.scale(2.5, 2.5, 0.7);
+    var bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xCED5D3 });
+    var body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.rotateX(Math.PI / 2);
+    ovni.add(body);
+
+    var headGeometry = new THREE.SphereGeometry(cockpitRadius, 32, 32);
+    headGeometry.scale(1, 1, 1.3);
+    var headMaterial = new THREE.MeshBasicMaterial({ color: 0x2DBAF3 });
+    var head = new THREE.Mesh(headGeometry, headMaterial);
+    head.position.y = bodyRadius-1;
+    ovni.add(head);
+
+    var cylinderGeometry = new THREE.CylinderGeometry(cylinderRadius, cylinderRadius, cylinderHeight, 32);
+    var cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0xE1E412 });
+    var cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+    cylinder.position.y -= bodyRadius - 0.8;
+    ovni.add(cylinder);
+
+    var spotLight = new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
+    spotLight.position.y -= bodyRadius - 0.8;
+    spotLight.target.position.set(0, -bodyRadius - cylinderHeight - 10, 0);
+    ovni.add(spotLight);
+
+    for (var i = 0; i < lightNumber; i++) {
+        var angle = (i / lightNumber) * Math.PI * 2;
+
+        var lightGeometry = new THREE.SphereGeometry(lightRadius, 16, 16);
+        var lightMaterial = new THREE.MeshBasicMaterial({ color: 0xE1E412 });
+        var light = new THREE.Mesh(lightGeometry, lightMaterial);
+        light.position.set(Math.cos(angle) * lightRadius * 7, -2, Math.sin(angle) * lightRadius * 7);
+        light.rotateX(angle);
+        ovni.add(light);
+
+        var pointLight = new THREE.PointLight(0xFFFFFF, 1, 20);
+        pointLight.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
+        ovni.add(pointLight);
+    }
+
+    ovni.position.set(0, 10, 0);
+    scene.add(ovni);
 }
 
 //////////////////////
@@ -185,6 +233,7 @@ function init() {
     createScene();
     createCamera();
     createHouse();
+    createOvni();
     //generateFieldTexture();
     //generateSkyTexture();
     //currentTexture = fieldTexture;

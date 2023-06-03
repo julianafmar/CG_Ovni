@@ -1,15 +1,16 @@
 //OVNI's body
-const body_radius = 3; // usar scale para diminuir em y = 1/3*body
+const bodyRadius = 3; // usar scale para diminuir em y = 1/3*body
 
 //OVNI´s head
-const head_radius = 2;
+const cockpitRadius = 2;
 
 //ONVI's cilinder
-const cilinder_height = 0.2;
-const cilinder_radius = 1;
+const cylinderHeight = 0.2;
+const cylinderRadius = 1;
 
 //OVNI's lights 
-const light_radius = 0.5;
+const lightRadius = 0.5;
+const lightNumber = 6;
 
 //HOUSE 
 const house_lenght = 13;
