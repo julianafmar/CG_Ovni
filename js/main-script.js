@@ -3,9 +3,15 @@
 //////////////////////
 var renderer, scene, mesh, geometry, material;
 var fieldTexture, skyTexture, currentTexture;
-var house;
-
 var camera;
+
+var house;
+var ovni;
+
+var leftArrow = false;
+var rightArrow = false;
+var upArrow = false;
+var downArrow = false;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -275,17 +281,17 @@ function createLeaves(obj, x, y, z, size){
 function createOvni() {
     'use strict';
 
-    var ovni = new THREE.Object3D();
+    ovni = new THREE.Object3D();
 
     var bodyGeometry = new THREE.SphereGeometry(bodyRadius, 32, 32);
-    bodyGeometry.scale(2.5, 2.5, 0.7);
+    bodyGeometry.scale(2, 2, 0.7);
     var bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xCED5D3 });
     var body = new THREE.Mesh(bodyGeometry, bodyMaterial);
     body.rotateX(Math.PI / 2);
     ovni.add(body);
 
     var headGeometry = new THREE.SphereGeometry(cockpitRadius, 32, 32);
-    headGeometry.scale(1, 1, 1.3);
+    headGeometry.scale(1.3, 1, 1.3);
     var headMaterial = new THREE.MeshBasicMaterial({ color: 0x2DBAF3 });
     var head = new THREE.Mesh(headGeometry, headMaterial);
     head.position.y = bodyRadius-1;
@@ -308,7 +314,7 @@ function createOvni() {
         var lightGeometry = new THREE.SphereGeometry(lightRadius, 16, 16);
         var lightMaterial = new THREE.MeshBasicMaterial({ color: 0xE1E412 });
         var light = new THREE.Mesh(lightGeometry, lightMaterial);
-        light.position.set(Math.cos(angle) * lightRadius * 7, -2, Math.sin(angle) * lightRadius * 7);
+        light.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
         light.rotateX(angle);
         ovni.add(light);
 
@@ -317,7 +323,7 @@ function createOvni() {
         ovni.add(pointLight);
     }
 
-    ovni.position.set(0, 10, 0);
+    ovni.position.set(0, 15, 0);
     scene.add(ovni);
 }
 
@@ -399,10 +405,22 @@ function init() {
 /////////////////////
 function animate() {
     'use strict';
-    
-    render();
 
     requestAnimationFrame(animate);
+
+    const delta = clock.getDelta();
+    const distance = movementSpeed * delta;
+
+    // Parece me que isto esta a fazer o ovni mudar a direçao, mas n sei se estou so louca
+    //if (movementVector.x != 0 && movementVector.z !=0)
+    //    movementVector.normalize();
+    
+
+    ovni.position.add(movementVector.clone().multiplyScalar(distance));
+
+    ovni.rotation.y += 0.01;
+
+    render();
 
 }
 
@@ -427,20 +445,47 @@ function onResize() {
 function onKeyDown(e) {
     'use strict';
 
-    switch (e.keyCode) {
-        case 49: // Tecla 1
+    switch (e.key) {
+        case "1":
             currentTexture = fieldTexture;
             mesh.material.map = currentTexture;
+            mesh.needsUpdate = true;
             break;
-        case 50: // Tecla 2
+        case "2":
             currentTexture = skyTexture;
             mesh.material.map = currentTexture;
+            mesh.needsUpdate = true;
+            break; 
+        case "ArrowLeft":
+            leftArrow = true;
+            if (rightArrow == true)
+                movementVector.x = 0;
+            else
+                movementVector.x = -1;
+            break;
+        case "ArrowRight":
+            rightArrow = true;
+            if (leftArrow == true) {
+                movementVector.x = 0;
+            } else {
+                movementVector.x = 1;
+            }
+            break;
+        case "ArrowUp":
+            upArrow = true;
+            if(downArrow == true)
+                movementVector.z = 0;
+            else
+                movementVector.z = -1;
+            break;
+        case "ArrowDown":
+            downArrow = true;
+            if(upArrow == true)
+                movementVector.z = 0;
+            else
+                movementVector.z = 1;
             break;
     }
-
-    mesh.needsUpdate = true;
-
-    render();
 
 }
 
@@ -449,6 +494,27 @@ function onKeyDown(e) {
 ///////////////////////
 function onKeyUp(e){
     'use strict';
+
+    switch (e.keyCode) {
+        case 37: // Left Arrow
+            leftArrow = false;
+            movementVector.x = 0;
+            break;
+        case 39: // Right Arrow
+            rightArrow = false;
+            movementVector.x = 0;
+            break;
+        case 38: // Up Arrow
+            upArrow = false;
+            movementVector.z = 0;
+            break;
+        case 40: // Down Arrow
+            downArrow = false;
+            movementVector.z = 0;
+            break;
+    }
+
+    update();
 
 }
 

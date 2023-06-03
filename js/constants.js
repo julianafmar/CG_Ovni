@@ -49,3 +49,7 @@ const side_log_height = 2.5;
 const leaves_radius_X = 3.5/2; //scale y = 1/1.75
 const leaves_radius_Y = 1;
 const leaves_material = new THREE.MeshBasicMaterial({ color: 0x1C9013 });
+
+const movementSpeed = 10;
+const movementVector = new THREE.Vector3(0, 0, 0);
+const clock = new THREE.Clock();
