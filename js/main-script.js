@@ -2,16 +2,24 @@
 /* GLOBAL VARIABLES */
 //////////////////////
 var renderer, scene, mesh, geometry, material;
-var fieldTexture, skyTexture, currentTexture;
+var fieldTexture, skyTexture, currentTexture, gradientTexture;
 var camera;
 
 var house;
 var ovni;
+var trees;
+
+var houseMaterials = [];
+var ovniMaterials = [];
+var treeMaterials = [];
+var ovniLights = [];
 
 var leftArrow = false;
 var rightArrow = false;
 var upArrow = false;
 var downArrow = false;
+
+var ovniPosition;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -38,6 +46,21 @@ function createCamera(){
     camera.position.y = 50;
     camera.position.z = 50;
     camera.lookAt(scene.position);
+
+}
+
+function createMaterials() {
+    'use strict';
+
+    //indice 0
+    houseMaterials.push(new THREE.MeshLambertMaterial({ color: 0xC06F2A, roughness: 0.8 }));
+    //indice 1
+    houseMaterials.push(new THREE.MeshPhongMaterial({ color: 0xff0000 }));
+    //indice 2
+    houseMaterials.push(new THREE.MeshToonMaterial({
+        color: 0xffffff,   // Set the base color of the material
+        gradientMap: gradientTexture,   // Set a gradient texture to define shading levels
+    }));
 
 }
 
@@ -79,14 +102,16 @@ function generateFieldTexture() {
     }
 
     fieldTexture = new THREE.Texture(canvas);
+    fieldTexture.wrapS = fieldTexture.wrapT = THREE.RepeatWrapping;
+    fieldTexture.repeat.set(10, 10); 
     fieldTexture.needsUpdate = true;
 }
 
 
 function generateSkyTexture() {
     var canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 256;
+    canvas.width = 1024;
+    canvas.height = 1024;
     var ctx = canvas.getContext('2d');
 
     // Fundo degradê de azul-escuro para violeta-escuro
@@ -98,7 +123,7 @@ function generateSkyTexture() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Pontilhado de estrelas brancas
-    var numStars = 300;
+    var numStars = 3000;
     var radiusRange = [0.5, 2];
 
     ctx.fillStyle = '#FFFFFF';
@@ -118,23 +143,30 @@ function generateSkyTexture() {
     skyTexture.needsUpdate = true;
 }
 
+function generateGradientTexture(){
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 1;
+
+    const context = canvas.getContext('2d');
+    const gradient = context.createLinearGradient(0, 0, canvas.width, 0);
+    gradient.addColorStop(0, 'white');   // Lighter color on the left
+    gradient.addColorStop(1, 'black');   // Darker color on the right
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    gradientTexture = new THREE.CanvasTexture(canvas);
+}
+
 function createHouse() {
 
     const vertices = houseTriangles.flat();
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-
-    // DUVIDA: ver material(cores não funcionam)
-    /*var houseMaterial = new THREE.MeshStandardMaterial({
-        color: 0xC8A2C8,
-        opacity: 0.3,
-        metalness: 0.2,
-        roughness: 0.6
-    });*/
           
-
-    var houseMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xe4e3e3, wireframe: false }));
+    var houseMesh = new THREE.Mesh(geometry, houseMaterials[0]);
     house.add(houseMesh);
     //scene.add(houseMesh);
 
@@ -192,15 +224,32 @@ function createHouse() {
     scene.add(house);
 }
 
+function createGround() {
+    const groundGeo = new THREE.PlaneGeometry(200, 200, 600, 600); 
+
+    let disMap = new THREE.TextureLoader().load('images/heightmap.png'); 
+
+    const groundMat = new THREE.MeshStandardMaterial ({
+        color: 0x808080, wireframe: true, displacementMap: disMap, displacementScale: 10, map: fieldTexture
+    });
+    const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+
+    groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.position.y = -10;
+    scene.add(groundMesh);
+}
+
 function createTrees(){
     var sizes = [1, 1.3, 1.5, 1.7, 2];
-    const treePositions = [];
     const minX = -50;
     const maxX = 50;
     const minZ = -40;
     const maxZ = 40;
     const numTrees = 25;
     const minTreeDistance = 10;
+    const treePositions = [];
+
+    trees = new THREE.Object3D();
 
     for (let i = 1; i < numTrees; i++){
         let x;
@@ -211,11 +260,9 @@ function createTrees(){
             x = Math.random() * (maxX - minX) + minX;
             if (x <= 18 && x >= -5)
                 continue;
-            console.log("x: " + x);
             z = Math.random() * (maxZ - minZ) + minZ;
             if (z <= 11 && z >= -5)
                 continue;
-            console.log("z: " + z);
             if (!treePositions.includes({x, z}) && hasMinimumDistance(x, z, treePositions, minTreeDistance)){
                 uniquePosition = true;
                 treePositions.push({x, z});
@@ -224,6 +271,9 @@ function createTrees(){
         let size = sizes[Math.floor(Math.random()*sizes.length)];
         createTree(x, 0, z, size, Math.random());
     }
+
+    scene.add(trees);
+
 }
 
 function hasMinimumDistance(x, z, treePositions, minTreeDistance) {
@@ -243,27 +293,27 @@ function createTree(x, y, z, size, rot){
     var tree = new THREE.Object3D();
     tree.name = 'tree';
 
-    geometry = new THREE.CylinderGeometry(main_log_radius*size, main_log_radius*size, main_log_height*size, 32);
-    mesh = new THREE.Mesh(geometry, trunk_material);
+    geometry = new THREE.CylinderGeometry(mainLogRadius*size, mainLogRadius*size, mainLogHeight*size, 32);
+    mesh = new THREE.Mesh(geometry, trunkMaterial);
     tree.add(mesh);
 
-    createBranch(tree, -main_log_radius, main_log_height/2*size, 0, Math.PI/6, size);
-    createBranch(tree, main_log_radius, main_log_height/2*size, 0, -Math.PI/6, size);
+    createBranch(tree, -mainLogRadius, mainLogHeight/2*size, 0, Math.PI/6, size);
+    createBranch(tree, mainLogRadius, mainLogHeight/2*size, 0, -Math.PI/6, size);
 
-    createLeaves(tree, (-main_log_radius-side_log_radius-1)*size, (main_log_height/2 + side_log_height/2)*size, 0, size);
-    createLeaves(tree, (main_log_radius+side_log_radius+1)*size, (main_log_height/2 + side_log_height/2)*size , 0, size);
-    createLeaves(tree, 0, main_log_height*size, 0, size);
+    createLeaves(tree, (-mainLogRadius-sideLogRadius-1)*size, (mainLogHeight/2 + sideLogHeight/2)*size, 0, size);
+    createLeaves(tree, (mainLogRadius+sideLogRadius+1)*size, (mainLogHeight/2 + sideLogHeight/2)*size , 0, size);
+    createLeaves(tree, 0, mainLogHeight*size, 0, size);
 
     tree.position.set(x, y, z);
     tree.rotateY(Math.PI*rot)
     
-    scene.add(tree);
+    trees.add(tree);
 }
 
 function createBranch(obj, x, y, z, rot, size){
-    geometry = new THREE.CylinderGeometry(side_log_radius, side_log_radius, side_log_height*size, 32);
+    geometry = new THREE.CylinderGeometry(sideLogRadius, sideLogRadius, sideLogHeight*size, 32);
     geometry.rotateZ(rot);
-    mesh = new THREE.Mesh(geometry, trunk_material);
+    mesh = new THREE.Mesh(geometry, trunkMaterial);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -271,11 +321,21 @@ function createBranch(obj, x, y, z, rot, size){
 function createLeaves(obj, x, y, z, size){
     'use strict';
 
-    geometry = new THREE.SphereGeometry(leaves_radius_X*size, 32, 32);
-    geometry.scale(1, leaves_radius_Y*size / (leaves_radius_X*size), 1);
-    mesh = new THREE.Mesh(geometry, leaves_material);
+    geometry = new THREE.SphereGeometry(leavesRadiusX*size, 32, 32);
+    geometry.scale(1, leavesRadiusY*size / (leavesRadiusX*size), 1);
+    mesh = new THREE.Mesh(geometry, leavesMaterial);
     mesh.position.set(x, y, z);
     obj.add(mesh);
+}
+
+function createSkydoom() {
+    'use strict';
+//, 0, Math.PI, 0, Math.PI*2
+    geometry = new THREE.SphereGeometry(100, 32, 32);
+    material = new THREE.MeshBasicMaterial({ map: skyTexture,  side: THREE.BackSide });
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0, 0, 0);
+    scene.add(mesh);
 }
 
 function createOvni() {
@@ -303,10 +363,11 @@ function createOvni() {
     cylinder.position.y -= bodyRadius - 0.8;
     ovni.add(cylinder);
 
-    var spotLight = new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
+    var spotLight= new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
     spotLight.position.y -= bodyRadius - 0.8;
-    spotLight.target.position.set(0, -bodyRadius - cylinderHeight - 10, 0);
     ovni.add(spotLight);
+    //spotLight.target.position.set(0, -bodyRadius - cylinderHeight - 10, 0);
+    ovniLights.push(spotLight);
 
     for (var i = 0; i < lightNumber; i++) {
         var angle = (i / lightNumber) * Math.PI * 2;
@@ -321,6 +382,7 @@ function createOvni() {
         var pointLight = new THREE.PointLight(0xFFFFFF, 1, 20);
         pointLight.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
         ovni.add(pointLight);
+        ovniLights.push(pointLight);
     }
 
     ovni.position.set(0, 15, 0);
@@ -336,7 +398,7 @@ function createMoon() {
     moon.position.set(30, 50, 0);
     scene.add(moon);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2);
     directionalLight.position.set(1, 1, 1); // Set the position of the light
     scene.add(directionalLight);
 
@@ -366,6 +428,28 @@ function handleCollisions(){
 function update(){
     'use strict';
 
+    const delta = clock.getDelta();
+    const distance = movementSpeed * delta;
+
+    // Parece me que isto esta a fazer o ovni mudar a direçao, mas n sei se estou so louca
+    //if (movementVector.x != 0 && movementVector.z !=0)
+    //    movementVector.normalize();
+    
+    ovni.position.add(movementVector.clone().multiplyScalar(distance));
+
+    ovni.rotation.y += 0.01;
+
+    /*for (var i = 0; i < ovniLights.length; i++) {
+        var aux = ovniLights[i].position.clone();
+        aux.y = 0;
+        ovniLights[i].lookAt(aux);
+    }*/
+    ovniLights[0].target.updateMatrixWorld();
+    var aux = ovni.position.clone();
+    aux.y = 0;
+    console.log(ovni.position);
+    ovniLights[0].lookAt(aux);
+
 }
 
 /////////////
@@ -393,15 +477,20 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     house = new THREE.Object3D();
-
+    
+    
+    generateGradientTexture();
+    createMaterials();
     createScene();
     createCamera();
     createHouse();
     createOvni();
     createTrees();
     createMoon();
-    //generateFieldTexture();
-    //generateSkyTexture();
+    generateFieldTexture();
+    createGround();
+    generateSkyTexture();
+    createSkydoom();
     //currentTexture = fieldTexture;
 
     /*var geometry = new THREE.PlaneGeometry(10, 10);
@@ -425,18 +514,6 @@ function animate() {
     'use strict';
 
     requestAnimationFrame(animate);
-
-    const delta = clock.getDelta();
-    const distance = movementSpeed * delta;
-
-    // Parece me que isto esta a fazer o ovni mudar a direçao, mas n sei se estou so louca
-    //if (movementVector.x != 0 && movementVector.z !=0)
-    //    movementVector.normalize();
-    
-
-    ovni.position.add(movementVector.clone().multiplyScalar(distance));
-
-    ovni.rotation.y += 0.01;
 
     render();
 
