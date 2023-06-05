@@ -2,8 +2,9 @@
 /* GLOBAL VARIABLES */
 //////////////////////
 var renderer, scene, mesh, geometry, material;
-var fieldTexture, skyTexture, currentTexture, gradientTexture;
-var camera;
+var fieldTexture, skyTexture, textureMesh, gradientTexture;
+var cameras = [];
+var activeCamera = 0;
 
 var house;
 var ovni;
@@ -38,14 +39,14 @@ function createScene(){
 function createCamera(){
     'use strict';
 
-    camera = new THREE.PerspectiveCamera(70,
-        window.innerWidth / window.innerHeight,
-        1,
-        1000);
-    camera.position.x = 50;
-    camera.position.y = 50;
-    camera.position.z = 50;
+    var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.set(50, 50, 50);
     camera.lookAt(scene.position);
+    cameras.push(camera);
+
+    camera = new THREE.OrthographicCamera( window.innerWidth / - 32, window.innerWidth / 32, window.innerHeight / 32, window.innerHeight / - 32, -200, 500 );
+    camera.position.set(200, 0, 60);
+    cameras.push(camera);
 
 }
 
@@ -67,6 +68,14 @@ function createMaterials() {
 /////////////////////
 /* CREATE LIGHT(S) */
 /////////////////////
+
+function createLights() {
+    'use strict';
+
+    const ambientLight = new THREE.AmbientLight(0x333333); // Low intensity ambient light
+    scene.add(ambientLight);
+
+}
 
 ////////////////////////
 /* CREATE OBJECT3D(S) */
@@ -248,11 +257,11 @@ function createGround() {
 
 function createTrees(){
     var sizes = [1, 1.3, 1.5, 1.7, 2];
-    const minX = -50;
-    const maxX = 50;
-    const minZ = -40;
-    const maxZ = 40;
-    const numTrees = 25;
+    const minX = -60;
+    const maxX = 60;
+    const minZ = -50;
+    const maxZ = 50;
+    const numTrees = 20;
     const minTreeDistance = 10;
     const treePositions = [];
 
@@ -337,7 +346,7 @@ function createLeaves(obj, x, y, z, size){
 
 function createSkydoom() {
     'use strict';
-//, 0, Math.PI, 0, Math.PI*2
+    
     geometry = new THREE.SphereGeometry(100, 32, 32);
     material = new THREE.MeshBasicMaterial({ map: skyTexture,  side: THREE.BackSide });
     mesh = new THREE.Mesh(geometry, material);
@@ -374,7 +383,7 @@ function createOvni() {
     var spotLight= new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
     spotLight.position.y -= bodyRadius - 0.8;
     ovni.add(spotLight);
-    //spotLight.target.position.set(0, -bodyRadius - cylinderHeight - 10, 0);
+    
     ovniLights.push(spotLight);
 	scene.add( spotLight.target );
 
@@ -408,11 +417,22 @@ function createMoon() {
     scene.add(moon);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
-    directionalLight.position.set(1, 1, 1); // Set the position of the light
+    const angle = -Math.PI / 4;
+    const direction = new THREE.Vector3(Math.cos(angle), -1, Math.sin(angle)).normalize();
+    directionalLight.position.copy(direction);
     scene.add(directionalLight);
 
-    const ambientLight = new THREE.AmbientLight(0x333333); // Low intensity ambient light
-    scene.add(ambientLight);
+}
+
+function showTexture() {
+    'use strict';
+
+    geometry = new THREE.PlaneGeometry(30, 30);
+    material = new THREE.MeshBasicMaterial({ map: fieldTexture });
+    textureMesh = new THREE.Mesh(geometry, material);
+    textureMesh.position.set(200, 0, 60);
+    scene.add(textureMesh);
+
 }
 
 //////////////////////
@@ -459,7 +479,7 @@ function update(){
 function render() {
     'use strict';
 
-    renderer.render(scene, camera);
+    renderer.render(scene, cameras[activeCamera]);
 
     update();
 
@@ -470,6 +490,7 @@ function render() {
 ////////////////////////////////
 function init() {
     'use strict';
+
     clock = new THREE.Clock();
 
     renderer = new THREE.WebGLRenderer({
@@ -478,8 +499,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    house = new THREE.Object3D();
-    
+    house = new THREE.Object3D(); /*pk é q a criaçao da casa ta aqui? */
     
     generateGradientTexture();
     createMaterials();
@@ -493,7 +513,8 @@ function init() {
     createGround();
     generateSkyTexture();
     createSkydoom();
-    //currentTexture = fieldTexture;
+    showTexture();
+    createLights();
 
     /*var geometry = new THREE.PlaneGeometry(10, 10);
     material = new THREE.MeshBasicMaterial({ map: currentTexture });
@@ -530,8 +551,8 @@ function onResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     if (window.innerHeight > 0 && window.innerWidth > 0) {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
+        cameras[activeCamera].aspect = window.innerWidth / window.innerHeight;
+        cameras[activeCamera].updateProjectionMatrix();
     }
 
 }
@@ -544,14 +565,14 @@ function onKeyDown(e) {
 
     switch (e.key) {
         case "1":
-            currentTexture = fieldTexture;
-            mesh.material.map = currentTexture;
-            mesh.needsUpdate = true;
+            textureMesh.material.map = fieldTexture;
+            textureMesh.needsUpdate = true;
+            activeCamera = 1;
             break;
         case "2":
-            currentTexture = skyTexture;
-            mesh.material.map = currentTexture;
-            mesh.needsUpdate = true;
+            textureMesh.material.map = skyTexture;
+            textureMesh.needsUpdate = true;
+            activeCamera = 1;
             break; 
         case "ArrowLeft":
             leftArrow = true;
