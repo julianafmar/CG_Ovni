@@ -5,6 +5,7 @@ var renderer, scene, mesh, geometry, material;
 var fieldTexture, skyTexture, textureMesh, gradientTexture;
 var cameras = [];
 var activeCamera = 0;
+var lights = [];
 
 var house;
 var ovni;
@@ -21,6 +22,7 @@ var upArrow = false;
 var downArrow = false;
 
 var ovniPosition;
+var clock;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -72,8 +74,23 @@ function createMaterials() {
 function createLights() {
     'use strict';
 
-    const ambientLight = new THREE.AmbientLight(0x333333); // Low intensity ambient light
+    var ambientLight = new THREE.AmbientLight(0x333333); // Low intensity ambient light
     scene.add(ambientLight);
+    lights.push(ambientLight);
+
+    var spotLight= new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
+    spotLight.position.y -= bodyRadius - 0.8;
+    scene.add(spotLight.target);
+    lights.push(spotLight);
+
+    for (var i = 0; i < lightNumber; i++) {
+        var angle = (i / lightNumber) * Math.PI * 2;
+
+        var pointLight = new THREE.PointLight(0xFFFFFF, 1, 20);
+        pointLight.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
+
+        lights.push(pointLight);
+    }
 
 }
 
@@ -159,8 +176,8 @@ function generateGradientTexture(){
 
     const context = canvas.getContext('2d');
     const gradient = context.createLinearGradient(0, 0, canvas.width, 0);
-    gradient.addColorStop(0, 'white');   // Lighter color on the left
-    gradient.addColorStop(1, 'black');   // Darker color on the right
+    gradient.addColorStop(0, 'white'); 
+    gradient.addColorStop(1, 'black');
 
     context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -380,27 +397,17 @@ function createOvni() {
     cylinder.position.y -= bodyRadius - 0.8;
     ovni.add(cylinder);
 
-    var spotLight= new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
-    spotLight.position.y -= bodyRadius - 0.8;
-    ovni.add(spotLight);
-    
-    ovniLights.push(spotLight);
-	scene.add( spotLight.target );
+    ovni.add(lights[1]);
 
     for (var i = 0; i < lightNumber; i++) {
         var angle = (i / lightNumber) * Math.PI * 2;
-
         var lightGeometry = new THREE.SphereGeometry(lightRadius, 16, 16);
         var lightMaterial = new THREE.MeshBasicMaterial({ color: 0xE1E412 });
         var light = new THREE.Mesh(lightGeometry, lightMaterial);
         light.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
         light.rotateX(angle);
         ovni.add(light);
-
-        var pointLight = new THREE.PointLight(0xFFFFFF, 1, 20);
-        pointLight.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
-        ovni.add(pointLight);
-        ovniLights.push(pointLight);
+        ovni.add(lights[i+2]);
     }
 
     ovni.position.set(0, 15, 0);
@@ -468,8 +475,8 @@ function update(){
 
     ovni.rotation.y += 0.01;
     
-    ovniLights[0].position.set(ovni.position.clone());
-    ovniLights[0].position.y = 0;
+    lights[1].position.set(ovni.position.clone());
+    lights[1].position.y = 0;
 
 }
 
@@ -501,10 +508,11 @@ function init() {
 
     house = new THREE.Object3D(); /*pk é q a criaçao da casa ta aqui? */
     
-    generateGradientTexture();
+    generateGradientTexture(); /*pk é q a criaçao da textura ta aqui? */
     createMaterials();
     createScene();
     createCamera();
+    createLights();
     createHouse();
     createOvni();
     createTrees();
@@ -514,7 +522,6 @@ function init() {
     generateSkyTexture();
     createSkydoom();
     showTexture();
-    createLights();
 
     /*var geometry = new THREE.PlaneGeometry(10, 10);
     material = new THREE.MeshBasicMaterial({ map: currentTexture });
@@ -603,7 +610,18 @@ function onKeyDown(e) {
             else
                 movementVector.z = 1;
             break;
-        }
+        case "d" || "D":
+            lights[0].visible = !lights[0].visible;
+            break;
+        
+        case "p" || "P":
+            for(var i = 2; i < lights.length; i++){
+                lights[i].visible = !lights[i].visible;
+            }
+            break;
+        case "s" || "S":
+            lights[1].visible = !lights[1].visible;
+    }
 
 }
 
