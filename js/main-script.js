@@ -53,7 +53,7 @@ function createMaterials() {
     'use strict';
 
     //indice 0
-    houseMaterials.push(new THREE.MeshLambertMaterial({ color: 0xC06F2A }));
+    houseMaterials.push(new THREE.MeshLambertMaterial({ color: 0xFFFFFF }));
     //indice 1
     houseMaterials.push(new THREE.MeshPhongMaterial({ color: 0xff0000 }));
     //indice 2
@@ -342,6 +342,7 @@ function createSkydoom() {
     material = new THREE.MeshBasicMaterial({ map: skyTexture,  side: THREE.BackSide });
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, 0, 0);
+    mesh.rotateX(Math.PI/3);
     scene.add(mesh);
 }
 
@@ -406,7 +407,7 @@ function createMoon() {
     moon.position.set(30, 50, 0);
     scene.add(moon);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
     directionalLight.position.set(1, 1, 1); // Set the position of the light
     scene.add(directionalLight);
 
