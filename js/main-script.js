@@ -594,19 +594,23 @@ function onKeyUp(e){
     switch (e.keyCode) {
         case 37: // Left Arrow
             leftArrow = false;
-            movementVector.x = 0;
+            if (rightArrow) movementVector.x = 1;
+            else movementVector.x = 0;
             break;
         case 39: // Right Arrow
             rightArrow = false;
-            movementVector.x = 0;
+            if (leftArrow) movementVector.x = -1;
+            else movementVector.x = 0;
             break;
         case 38: // Up Arrow
             upArrow = false;
-            movementVector.z = 0;
+            if (downArrow) movementVector.z = 1;
+            else movementVector.z = 0;
             break;
         case 40: // Down Arrow
             downArrow = false;
-            movementVector.z = 0;
+            if (upArrow) movementVector.z = -1;
+            else movementVector.z = 0;
             break;
     }
 
