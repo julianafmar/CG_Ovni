@@ -53,7 +53,7 @@ function createMaterials() {
     'use strict';
 
     //indice 0
-    houseMaterials.push(new THREE.MeshLambertMaterial({ color: 0xC06F2A, roughness: 0.8 }));
+    houseMaterials.push(new THREE.MeshLambertMaterial({ color: 0xC06F2A }));
     //indice 1
     houseMaterials.push(new THREE.MeshPhongMaterial({ color: 0xff0000 }));
     //indice 2
@@ -163,40 +163,45 @@ function createHouse() {
 
     const vertices = houseTriangles.flat();
 
-    const geometry = new THREE.BufferGeometry();
+    geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.computeVertexNormals();
           
     var houseMesh = new THREE.Mesh(geometry, houseMaterials[0]);
     house.add(houseMesh);
     //scene.add(houseMesh);
 
-    var geometry_roof = new THREE.BufferGeometry();
-    geometry_roof.setAttribute('position', new THREE.Float32BufferAttribute(roof, 3));
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(roof, 3));
+    geometry.computeVertexNormals();
 
     /*var roofMaterial = new THREE.MeshStandardMaterial({
         color: 0x000000,
         roughness: 1
     });*/
 
-    var roofMesh = new THREE.Mesh(geometry_roof, new THREE.MeshBasicMaterial({ color: 0xff8a3d, wireframe: false }));
+    var roofMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xff8a3d, wireframe: false }));
     house.add(roofMesh);
 
-    var geometry_chimney1 = new THREE.BufferGeometry();
-    geometry_chimney1.setAttribute('position', new THREE.Float32BufferAttribute(chimney1, 3));
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(chimney1, 3));
+    geometry.computeVertexNormals();
     //material igual ao da casa
 
-    var chimney1_mesh = new THREE.Mesh(geometry_chimney1, new THREE.MeshBasicMaterial({ color: 0xffbcbc, wireframe: false }));
+    var chimney1_mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffbcbc, wireframe: false }));
     house.add(chimney1_mesh);
 
-    var geometry_chimney2 = new THREE.BufferGeometry();
-    geometry_chimney2.setAttribute('position', new THREE.Float32BufferAttribute(chimney2, 3));
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(chimney2, 3));
+    geometry.computeVertexNormals();
     //material igual ao da casa
 
-    var chimney2_mesh = new THREE.Mesh(geometry_chimney2, new THREE.MeshBasicMaterial({ color: 0xffbcbc, wireframe: false }));
+    var chimney2_mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffbcbc, wireframe: false }));
     house.add(chimney2_mesh);
 
-    var geometry_window1 = new THREE.BufferGeometry();
-    geometry_window1.setAttribute('position', new THREE.Float32BufferAttribute(window1, 3));
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(window1, 3));
+    geometry.computeVertexNormals();
 
     /*var windowMaterial = new THREE.MeshStandardMaterial({
         color: 0xFFFFFF,
@@ -206,19 +211,21 @@ function createHouse() {
         roughness: 0.0
     });*/
 
-    var window1_mesh = new THREE.Mesh(geometry_window1, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
+    var window1_mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
     house.add(window1_mesh);
 
-    var geometry_window2 = new THREE.BufferGeometry();
-    geometry_window2.setAttribute('position', new THREE.Float32BufferAttribute(window2, 3));
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(window2, 3));
+    geometry.computeVertexNormals();
 
-    var window2_mesh = new THREE.Mesh(geometry_window2, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
+    var window2_mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
     house.add(window2_mesh);
 
-    var geometry_door = new THREE.BufferGeometry();
-    geometry_door.setAttribute('position', new THREE.Float32BufferAttribute(door, 3));
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(door, 3));
+    geometry.computeVertexNormals();
 
-    var door_mesh = new THREE.Mesh(geometry_door, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
+    var door_mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xb17e7e, wireframe: false }));
     house.add(door_mesh);
 
     scene.add(house);
@@ -368,6 +375,7 @@ function createOvni() {
     ovni.add(spotLight);
     //spotLight.target.position.set(0, -bodyRadius - cylinderHeight - 10, 0);
     ovniLights.push(spotLight);
+	scene.add( spotLight.target );
 
     for (var i = 0; i < lightNumber; i++) {
         var angle = (i / lightNumber) * Math.PI * 2;
@@ -438,17 +446,9 @@ function update(){
     ovni.position.add(movementVector.clone().multiplyScalar(distance));
 
     ovni.rotation.y += 0.01;
-
-    /*for (var i = 0; i < ovniLights.length; i++) {
-        var aux = ovniLights[i].position.clone();
-        aux.y = 0;
-        ovniLights[i].lookAt(aux);
-    }*/
-    ovniLights[0].target.updateMatrixWorld();
-    var aux = ovni.position.clone();
-    aux.y = 0;
-    console.log(ovni.position);
-    ovniLights[0].lookAt(aux);
+    
+    ovniLights[0].position.set(ovni.position.clone());
+    ovniLights[0].position.y = 0;
 
 }
 
@@ -469,6 +469,7 @@ function render() {
 ////////////////////////////////
 function init() {
     'use strict';
+    clock = new THREE.Clock();
 
     renderer = new THREE.WebGLRenderer({
         antialias: true
@@ -580,7 +581,7 @@ function onKeyDown(e) {
             else
                 movementVector.z = 1;
             break;
-    }
+        }
 
 }
 
