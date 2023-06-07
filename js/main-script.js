@@ -84,6 +84,8 @@ function createLights() {
 ////////////////////////
 
 function generateFieldTexture() {
+    'use strict'
+
     var canvas = document.createElement('canvas');
     canvas.width = 256;
     canvas.height = 256;
@@ -119,6 +121,8 @@ function generateFieldTexture() {
 }
 
 function generateSkyTexture() {
+    'use strict'
+
     var canvas = document.createElement('canvas');
     canvas.width = 1024;
     canvas.height = 1024;
@@ -154,105 +158,79 @@ function generateSkyTexture() {
 }
 
 function createHouse() {
+    'use strict'
 
     const vertices = houseTriangles.flat();
 
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
     geometry.computeVertexNormals();
-          
-    var houseMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xF6F6F7,
-        roughness: 0.8
-    }));
+    material = new THREE.MeshStandardMaterial({ color: 0xF6F6F7, roughness: 0.8 });
+    var houseMesh = new THREE.Mesh(geometry, material);
     house.add(houseMesh);
     objects.push(houseMesh);
 
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(roof, 3));
     geometry.computeVertexNormals();
-
-    var roofMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xff8a3d, 
-        roughness: 0.8 
-    }));
+    material = new THREE.MeshStandardMaterial({ color: 0xff8a3d, roughness: 0.8 });
+    var roofMesh = new THREE.Mesh(geometry, material);
     house.add(roofMesh);
     objects.push(roofMesh);
 
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(chimney1, 3));
     geometry.computeVertexNormals();
-
-    var chimney1Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xababab,
-        roughness: 0.8
-    }));
+    material = new THREE.MeshStandardMaterial({ color: 0xababab, roughness: 0.8 });
+    var chimney1Mesh = new THREE.Mesh(geometry, material);
     house.add(chimney1Mesh);
     objects.push(chimney1Mesh);
 
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(chimney2, 3));
     geometry.computeVertexNormals();
-
-    var chimney2Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xababab, 
-        roughness: 0.8 
-    }));
+    var chimney2Mesh = new THREE.Mesh(geometry, material);
     house.add(chimney2Mesh);
     objects.push(chimney2Mesh);
 
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(window1, 3));
     geometry.computeVertexNormals();
-
-    var window1Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0x2DBAF3, 
-        metalness: 0.1, 
-        roughness: 0.1,
-        transparent: true, 
-        opacity: 0.5
-    }));
+    material = new THREE.MeshStandardMaterial({ color: 0x2DBAF3, metalness: 0.1, roughness: 0.1, transparent: true, opacity: 0.5 })
+    var window1Mesh = new THREE.Mesh(geometry, material);
     house.add(window1Mesh);
     objects.push(window1Mesh);
 
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(window2, 3));
     geometry.computeVertexNormals();
-
-    var window2Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0x2DBAF3,
-        metalness: 0.1,
-        roughness: 0.1, 
-        transparent: true, 
-        opacity: 0.5
-    }));
+    var window2Mesh = new THREE.Mesh(geometry, material);
     house.add(window2Mesh);
     objects.push(window2Mesh);
 
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(door, 3));
     geometry.computeVertexNormals();
-
-    var doorMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xb17e7e,
-        roughness: 0.2
-    }));
+    material = new THREE.MeshStandardMaterial({ color: 0xb17e7e, roughness: 0.2 });
+    var doorMesh = new THREE.Mesh(geometry, material);
     house.add(doorMesh);
     objects.push(doorMesh);
 
     scene.add(house);
 }
 
-function createGround() {
-    const groundGeo = new THREE.PlaneGeometry(200, 200, 600, 600); 
+function createField() {
+    'use strict'
+
+    geometry = new THREE.PlaneGeometry(200, 200, 600, 600); 
     
     heightmapTexture.wrapS = heightmapTexture.wrapT = THREE.RepeatWrapping;
     heightmapTexture.repeat.set(10, 10); 
 
-    const groundMat = new THREE.MeshStandardMaterial ({
+    material = new THREE.MeshPhongMaterial ({
         color: 0x808080, displacementMap: heightmapTexture, displacementScale: 10, map: fieldTexture, normalMap: normalmapTexture
     });
-    groundMesh = new THREE.Mesh(groundGeo, groundMat);
+    groundMesh = new THREE.Mesh(geometry, material);
 
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.y = -10;
@@ -260,6 +238,8 @@ function createGround() {
 }
 
 function createTrees(){
+    'use strict'
+
     var sizes = [1, 1.3, 1.5, 1.7, 2];
     const minX = -60;
     const maxX = 60;
@@ -297,6 +277,8 @@ function createTrees(){
 }
 
 function hasMinimumDistance(x, z, treePositions, minTreeDistance) {
+    'use strict'
+
     for (let i = 0; i < treePositions.length; i++) {
         const position = treePositions[i];
         const distance = Math.sqrt(Math.pow(x - position.x, 2) + Math.pow(z - position.z, 2));
@@ -332,6 +314,8 @@ function createTree(x, y, z, size, rot){
 }
 
 function createBranch(obj, x, y, z, rot, size){
+    'use strict'
+    
     geometry = new THREE.CylinderGeometry(sideLogRadius, sideLogRadius, sideLogHeight*size, 32);
     geometry.rotateZ(rot);
     mesh = new THREE.Mesh(geometry, trunkMaterial);
@@ -355,7 +339,7 @@ function createSkydoom() {
     'use strict';
     
     geometry = new THREE.SphereGeometry(100, 32, 32);
-    material = new THREE.MeshBasicMaterial({ map: skyTexture,  side: THREE.BackSide });
+    material = new THREE.MeshPhongMaterial({ map: skyTexture,  side: THREE.BackSide });
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, 0, 0);
     mesh.rotateX(Math.PI/3);
@@ -367,32 +351,25 @@ function createOvni() {
 
     ovni = new THREE.Object3D();
 
-    var bodyGeometry = new THREE.SphereGeometry(bodyRadius, 32, 32);
-    bodyGeometry.scale(2, 2, 0.7);
-    var bodyMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xCED5D3, 
-        metalness: 0.6
-    });
-    var body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    geometry = new THREE.SphereGeometry(bodyRadius, 32, 32);
+    geometry.scale(2, 2, 0.7);
+    material = new THREE.MeshStandardMaterial({ color: 0xCED5D3, metalness: 0.6 });
+    var body = new THREE.Mesh(geometry, material);
     body.rotateX(Math.PI / 2);
     ovni.add(body);
     objects.push(body);
 
-    var headGeometry = new THREE.SphereGeometry(cockpitRadius, 32, 32);
-    headGeometry.scale(1.3, 1, 1.3);
-    var headMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x2DBAF3,
-        transparent: true, 
-        opacity: 0.5     
-    });
-    var head = new THREE.Mesh(headGeometry, headMaterial);
+    geometry = new THREE.SphereGeometry(cockpitRadius, 32, 32);
+    geometry.scale(1.3, 1, 1.3);
+    material = new THREE.MeshStandardMaterial({ color: 0x2DBAF3, transparent: true, opacity: 0.5 });
+    var head = new THREE.Mesh(geometry, material);
     head.position.y = bodyRadius-1;
     ovni.add(head);
     objects.push(head);
 
-    var cylinderGeometry = new THREE.CylinderGeometry(cylinderRadius, cylinderRadius, cylinderHeight, 32);
-    var cylinderMaterial = new THREE.MeshStandardMaterial({ color: 0xE1E412 });
-    var cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+    geometry = new THREE.CylinderGeometry(cylinderRadius, cylinderRadius, cylinderHeight, 32);
+    material = new THREE.MeshStandardMaterial({ color: 0xE1E412 });
+    var cylinder = new THREE.Mesh(geometry, material);
     cylinder.position.y -= bodyRadius - 0.8;
     ovni.add(cylinder);
     objects.push(cylinder);
@@ -424,11 +401,12 @@ function createOvni() {
 function createMoon() {
     'use strict';
 
-    var moonGeometry = new THREE.SphereGeometry(7, 32, 32);
-    var moonMaterial = new THREE.MeshLambertMaterial({ color: 0xFBFEAA, emissive: 0xF8FC91 });
-    var moon = new THREE.Mesh(moonGeometry, moonMaterial);
+    geometry = new THREE.SphereGeometry(7, 32, 32);
+    material = new THREE.MeshStandardMaterial({ color: 0xFBFEAA, emissive: 0xF8FC91 });
+    var moon = new THREE.Mesh(geometry, material);
     moon.position.set(30, 50, 0);
     scene.add(moon);
+    objects.push(moon);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
     const angle = -Math.PI / 4;
@@ -529,7 +507,7 @@ function init() {
     createTrees();
     createMoon();
     generateFieldTexture();
-    createGround();
+    createField();
     generateSkyTexture();
     createSkydoom();
     showTexture();
@@ -629,7 +607,6 @@ function onKeyDown(e) {
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshLambertMaterial({ color: c });
             }
-            groundMesh.material = new THREE.MeshLambertMaterial({ color: 0x808080, map: fieldTexture });
             break;
 
         case "w" || "W":
@@ -637,9 +614,6 @@ function onKeyDown(e) {
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshPhongMaterial({ color: c });
             }
-            groundMesh.material = new THREE.MeshPhongMaterial({ 
-                displacementMap: heightmapTexture, displacementScale: 10, displacementBias: 0, normalMap: normalmapTexture, color: 0x808080, map: fieldTexture
-            });
             break;
 
         case "e" || "E":
@@ -647,9 +621,6 @@ function onKeyDown(e) {
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshToonMaterial({ color: c });
             }
-            groundMesh.material = new THREE.MeshToonMaterial({ 
-                displacementMap: heightmapTexture, displacementScale: 10, displacementBias: 0, normalMap: normalmapTexture, color: 0x808080, map: fieldTexture
-            });
             break;
 
         case "r" || "R":
@@ -657,7 +628,6 @@ function onKeyDown(e) {
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshBasicMaterial({ color: c });
             }
-            groundMesh.material = new THREE.MeshBasicMaterial({ color: 0x808080, map: fieldTexture });
             break;
     }
 
