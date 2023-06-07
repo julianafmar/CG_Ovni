@@ -1,7 +1,7 @@
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
-var renderer, scene, mesh, geometry, material;
+var renderer, scene, mesh, geometry, material, groundMesh;
 var fieldTexture, skyTexture, textureMesh, gradientTexture;
 var cameras = [];
 var activeCamera = 0;
@@ -20,6 +20,7 @@ var upArrow = false;
 var downArrow = false;
 
 var clock;
+var target;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -39,12 +40,15 @@ function createCamera(){
     'use strict';
 
     var camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 1, 1000);
-    camera.position.set(50, 50, 50);
+    camera.position.set(0, 50, 0);
     camera.lookAt(scene.position);
     cameras.push(camera);
 
     camera = new THREE.OrthographicCamera( window.innerWidth /-32, window.innerWidth/32, window.innerHeight/32, window.innerHeight/-32, -200, 500 );
     camera.position.set(200, 0, 60);
+    cameras.push(camera);
+
+    camera = new THREE.StereoCamera();
     cameras.push(camera);
 
 }
@@ -56,14 +60,9 @@ function createCamera(){
 function createLights() {
     'use strict';
 
-    var ambientLight = new THREE.AmbientLight(0x333333); // Low intensity ambient light
+    var ambientLight = new THREE.AmbientLight(0x5c5c5c);
     scene.add(ambientLight);
     lights.push(ambientLight);
-
-    var spotLight= new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
-    spotLight.position.y -= bodyRadius - 0.8;
-    scene.add(spotLight.target);
-    lights.push(spotLight);
 
     for (var i = 0; i < lightNumber; i++) {
         var angle = (i / lightNumber) * Math.PI * 2;
@@ -115,7 +114,6 @@ function generateFieldTexture() {
     fieldTexture.needsUpdate = true;
 }
 
-
 function generateSkyTexture() {
     var canvas = document.createElement('canvas');
     canvas.width = 1024;
@@ -159,7 +157,10 @@ function createHouse() {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
     geometry.computeVertexNormals();
           
-    var houseMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    var houseMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
+        color: 0xF6F6F7,
+        roughness: 0.8
+    }));
     house.add(houseMesh);
     objects.push(houseMesh);
 
@@ -167,7 +168,9 @@ function createHouse() {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(roof, 3));
     geometry.computeVertexNormals();
 
-    var roofMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xff8a3d }));
+    var roofMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xff8a3d, 
+        roughness: 0.8 
+    }));
     house.add(roofMesh);
     objects.push(roofMesh);
 
@@ -175,7 +178,10 @@ function createHouse() {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(chimney1, 3));
     geometry.computeVertexNormals();
 
-    var chimney1Mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffbcbc }));
+    var chimney1Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
+        color: 0xffbcbc,
+        roughness: 0.8
+    }));
     house.add(chimney1Mesh);
     objects.push(chimney1Mesh);
 
@@ -183,7 +189,10 @@ function createHouse() {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(chimney2, 3));
     geometry.computeVertexNormals();
 
-    var chimney2Mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffbcbc }));
+    var chimney2Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
+        color: 0xffbcbc, 
+        roughness: 0.8 
+    }));
     house.add(chimney2Mesh);
     objects.push(chimney2Mesh);
 
@@ -191,15 +200,13 @@ function createHouse() {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(window1, 3));
     geometry.computeVertexNormals();
 
-    /*var windowMaterial = new THREE.MeshStandardMaterial({
-        color: 0xFFFFFF,
-        transparent: true,
-        opacity: 0.3,
-        metalness: 0.2,
-        roughness: 0.0
-    });*/
-
-    var window1Mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xb17e7e }));
+    var window1Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
+        color: 0xCDF6FF, 
+        metalness: 0.1, 
+        roughness: 0.1,
+        transparent: true, 
+        opacity: 0.5
+    }));
     house.add(window1Mesh);
     objects.push(window1Mesh);
 
@@ -207,7 +214,13 @@ function createHouse() {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(window2, 3));
     geometry.computeVertexNormals();
 
-    var window2Mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xb17e7e }));
+    var window2Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
+        color: 0xCDF6FF,
+        metalness: 0.1,
+        roughness: 0.1, 
+        transparent: true, 
+        opacity: 0.5
+    }));
     house.add(window2Mesh);
     objects.push(window2Mesh);
 
@@ -215,7 +228,10 @@ function createHouse() {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(door, 3));
     geometry.computeVertexNormals();
 
-    var doorMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xb17e7e }));
+    var doorMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
+        color: 0xb17e7e,
+        roughness: 0.2
+    }));
     house.add(doorMesh);
     objects.push(doorMesh);
 
@@ -224,13 +240,14 @@ function createHouse() {
 
 function createGround() {
     const groundGeo = new THREE.PlaneGeometry(200, 200, 600, 600); 
-
-    let disMap = new THREE.TextureLoader().load('images/heightmap.png'); 
+    
+    heightmapTexture.wrapS = heightmapTexture.wrapT = THREE.RepeatWrapping;
+    heightmapTexture.repeat.set(10, 10); 
 
     const groundMat = new THREE.MeshStandardMaterial ({
-        color: 0x808080, wireframe: true, displacementMap: disMap, displacementScale: 10, map: fieldTexture
+        color: 0x808080, displacementMap: heightmapTexture, displacementScale: 10, map: fieldTexture, normalMap: normalmapTexture
     });
-    const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+    groundMesh = new THREE.Mesh(groundGeo, groundMat);
 
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.y = -10;
@@ -347,7 +364,10 @@ function createOvni() {
 
     var bodyGeometry = new THREE.SphereGeometry(bodyRadius, 32, 32);
     bodyGeometry.scale(2, 2, 0.7);
-    var bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xCED5D3 });
+    var bodyMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xCED5D3, 
+        metalness: 0.6
+    });
     var body = new THREE.Mesh(bodyGeometry, bodyMaterial);
     body.rotateX(Math.PI / 2);
     ovni.add(body);
@@ -355,25 +375,36 @@ function createOvni() {
 
     var headGeometry = new THREE.SphereGeometry(cockpitRadius, 32, 32);
     headGeometry.scale(1.3, 1, 1.3);
-    var headMaterial = new THREE.MeshBasicMaterial({ color: 0x2DBAF3 });
+    var headMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x2DBAF3,
+        transparent: true, 
+        opacity: 0.5     
+    });
     var head = new THREE.Mesh(headGeometry, headMaterial);
     head.position.y = bodyRadius-1;
     ovni.add(head);
     objects.push(head);
 
     var cylinderGeometry = new THREE.CylinderGeometry(cylinderRadius, cylinderRadius, cylinderHeight, 32);
-    var cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0xE1E412 });
+    var cylinderMaterial = new THREE.MeshStandardMaterial({ color: 0xE1E412 });
     var cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
     cylinder.position.y -= bodyRadius - 0.8;
     ovni.add(cylinder);
     objects.push(cylinder);
 
-    ovni.add(lights[1]);
+    var spotLight = new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
+    spotLight.position.set(0, bodyRadius - 0.8, 0);
+    lights.push(spotLight);
+    ovni.add(spotLight);
+    target = new THREE.Object3D();
+    target.position.set(0, 0, 0);
+    scene.add(target);
+    spotLight.target = target;
 
     for (var i = 0; i < lightNumber; i++) {
         var angle = (i / lightNumber) * Math.PI * 2;
         var lightGeometry = new THREE.SphereGeometry(lightRadius, 16, 16);
-        var lightMaterial = new THREE.MeshBasicMaterial({ color: 0xE1E412 });
+        var lightMaterial = new THREE.MeshStandardMaterial({ color: 0xE1E412 });
         var light = new THREE.Mesh(lightGeometry, lightMaterial);
         light.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
         light.rotateX(angle);
@@ -413,22 +444,6 @@ function showTexture() {
 
 }
 
-//////////////////////
-/* CHECK COLLISIONS */
-//////////////////////
-function checkCollisions(){
-    'use strict';
-
-}
-
-///////////////////////
-/* HANDLE COLLISIONS */
-///////////////////////
-function handleCollisions(){
-    'use strict';
-
-}
-
 ////////////
 /* UPDATE */
 ////////////
@@ -436,18 +451,19 @@ function update(){
     'use strict';
 
     const delta = clock.getDelta();
+    ovni.rotation.y += rotationSpeed * delta;
+
     const distance = movementSpeed * delta;
 
-    // Parece me que isto esta a fazer o ovni mudar a direçao, mas n sei se estou so louca
-    //if (movementVector.x != 0 && movementVector.z !=0)
-    //    movementVector.normalize();
+    if (movementVector.x != 0 && movementVector.z != 0) {
+        movementVector.normalize();
+        console.log(movementVector);
+    }
     
     ovni.position.add(movementVector.clone().multiplyScalar(distance));
-
-    ovni.rotation.y += 0.01;
     
-    lights[1].position.set(ovni.position.clone());
-    lights[1].position.y = 0;
+    lights[7].updateMatrixWorld(); 
+    target.position.set(ovni.position.x, 0, ovni.position.z); 
 
 }
 
@@ -490,12 +506,6 @@ function init() {
     createSkydoom();
     showTexture();
 
-    /*var geometry = new THREE.PlaneGeometry(10, 10);
-    material = new THREE.MeshBasicMaterial({ map: currentTexture });
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.y = - 7;
-    scene.add(mesh);*/
-
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
     window.addEventListener("keyup", onKeyUp);
@@ -511,7 +521,6 @@ function animate() {
     'use strict';
 
     requestAnimationFrame(animate);
-
     render();
 
 }
@@ -543,11 +552,17 @@ function onKeyDown(e) {
             textureMesh.needsUpdate = true;
             activeCamera = 1;
             break;
+
         case "2":
             textureMesh.material.map = skyTexture;
             textureMesh.needsUpdate = true;
             activeCamera = 1;
             break; 
+
+        case "3":
+            activeCamera = 0;
+            break;
+
         case "ArrowLeft":
             leftArrow = true;
             if (rightArrow == true)
@@ -555,6 +570,7 @@ function onKeyDown(e) {
             else
                 movementVector.x = -1;
             break;
+
         case "ArrowRight":
             rightArrow = true;
             if (leftArrow == true) {
@@ -563,6 +579,7 @@ function onKeyDown(e) {
                 movementVector.x = 1;
             }
             break;
+
         case "ArrowUp":
             upArrow = true;
             if(downArrow == true)
@@ -570,6 +587,7 @@ function onKeyDown(e) {
             else
                 movementVector.z = -1;
             break;
+            
         case "ArrowDown":
             downArrow = true;
             if(upArrow == true)
@@ -577,41 +595,54 @@ function onKeyDown(e) {
             else
                 movementVector.z = 1;
             break;
+
         case "d" || "D":
             lights[0].visible = !lights[0].visible;
             break;
         
         case "p" || "P":
-            for(var i = 2; i < lights.length; i++){
+            for(var i = 1; i < lights.length - 1; i++)
                 lights[i].visible = !lights[i].visible;
-            }
             break;
+
         case "s" || "S":
-            lights[1].visible = !lights[1].visible;
+            lights[7].visible = !lights[7].visible;
             break;
+
         case "q" || "Q":
             for (let i = 0; i < objects.length; i++){
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshLambertMaterial({ color: c });
             }
+            groundMesh.material = new THREE.MeshLambertMaterial({ color: 0x808080, map: fieldTexture });
             break;
+
         case "w" || "W":
             for (let i = 0; i < objects.length; i++){
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshPhongMaterial({ color: c });
             }
+            groundMesh.material = new THREE.MeshPhongMaterial({ 
+                displacementMap: heightmapTexture, displacementScale: 10, displacementBias: 0, normalMap: normalmapTexture, color: 0x808080, map: fieldTexture
+            });
             break;
+
         case "e" || "E":
             for (let i = 0; i < objects.length; i++){
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshToonMaterial({ color: c });
             }
+            groundMesh.material = new THREE.MeshToonMaterial({ 
+                displacementMap: heightmapTexture, displacementScale: 10, displacementBias: 0, normalMap: normalmapTexture, color: 0x808080, map: fieldTexture
+            });
             break;
+
         case "r" || "R":
             for (let i = 0; i < objects.length; i++){
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshBasicMaterial({ color: c });
             }
+            groundMesh.material = new THREE.MeshBasicMaterial({ color: 0x808080, map: fieldTexture });
             break;
     }
 
@@ -623,23 +654,23 @@ function onKeyDown(e) {
 function onKeyUp(e){
     'use strict';
 
-    switch (e.keyCode) {
-        case 37: // Left Arrow
+    switch (e.key) {
+        case "ArrowLeft":
             leftArrow = false;
             if (rightArrow) movementVector.x = 1;
             else movementVector.x = 0;
             break;
-        case 39: // Right Arrow
+        case "ArrowRight": // Right Arrow
             rightArrow = false;
             if (leftArrow) movementVector.x = -1;
             else movementVector.x = 0;
             break;
-        case 38: // Up Arrow
+        case "ArrowUp": // Up Arrow
             upArrow = false;
             if (downArrow) movementVector.z = 1;
             else movementVector.z = 0;
             break;
-        case 40: // Down Arrow
+        case "ArrowDown": // Down Arrow
             downArrow = false;
             if (upArrow) movementVector.z = -1;
             else movementVector.z = 0;
@@ -649,99 +680,3 @@ function onKeyUp(e){
     update();
 
 }
-
-
-/*
-
-// Variáveis globais
-var scene, camera, renderer;
-var fieldTexture, terrainTexture;
-var terrainMaterial;
-
-// Tamanho do terreno
-var terrainWidth = 10;
-var terrainHeight = 10;
-
-init();
-generateTextures();
-generateTerrain();
-animate();
-
-function init() {
-    scene = new THREE.Scene();
-
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
-
-    renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    // Adicionar luz ambiente
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    // Adicionar luz direcional
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(0, 1, 0);
-    scene.add(directionalLight);
-}
-
-function generateTextures() {
-    // Gerar a textura do campo floral
-    // ...
-
-    var textureLoader = new THREE.TextureLoader();
-    var fieldTextureImage = textureLoader.load('path/to/field_texture.jpg', function() {
-        fieldTexture = new THREE.Texture(fieldTextureImage);
-        fieldTexture.wrapS = THREE.RepeatWrapping;
-        fieldTexture.wrapT = THREE.RepeatWrapping;
-        fieldTexture.repeat.set(terrainWidth / 2, terrainHeight / 2);
-        fieldTexture.needsUpdate = true;
-    });
-
-    // Gerar a textura do terreno
-    var terrainTextureImage = textureLoader.load('path/to/terrain_heightmap.png', function() {
-        terrainTexture = new THREE.Texture(terrainTextureImage);
-        terrainTexture.wrapS = THREE.RepeatWrapping;
-        terrainTexture.wrapT = THREE.RepeatWrapping;
-        terrainTexture.repeat.set(terrainWidth, terrainHeight);
-        terrainTexture.needsUpdate = true;
-    });
-}
-
-function generateTerrain() {
-    var terrainGeometry = new THREE.PlaneGeometry(terrainWidth, terrainHeight, 64, 64);
-    var terrainVertices = terrainGeometry.attributes.position.array;
-    var terrainIndices = terrainGeometry.index.array;
-
-    // Aplicar o mapa de alturas ao terreno
-    for (var i = 0; i < terrainVertices.length; i += 3) {
-        var x = terrainVertices[i];
-        var z = terrainVertices[i + 2];
-        var height = getTerrainHeight(x, z); // Função para obter a altura do mapa de alturas
-
-        terrainVertices[i + 1] = height;
-    }
-
-    // Criar o material do terreno com a textura do campo floral
-    terrainMaterial = new THREE.MeshBasicMaterial({ map: fieldTexture });
-
-    // Criar a malha do terreno
-    var terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
-    scene.add(terrainMesh);
-}
-
-function getTerrainHeight(x, z) {
-    // Função para obter a altura do mapa de alturas
-    // Implemente aqui a lógica para obter a altura do mapa de alturas
-    // Pode usar a posição (x, z) para mapear para as coordenadas do mapa de alturas
-
-    return 0; // Retorna uma altura padrão para fins de exemplo
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-}
-*/

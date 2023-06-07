@@ -1,5 +1,5 @@
 //OVNI's body
-const bodyRadius = 3; // usar scale para diminuir em y = 1/3*body
+const bodyRadius = 3; 
 
 //OVNI´s head
 const cockpitRadius = 2;
@@ -39,18 +39,22 @@ const defaultWidth = 0.2;
 //TREE
 const mainLogRadius = 0.75;
 const mainLogHeight = 4;
-const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x715A17 });
+const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x715A17 });
 
 //TREE side log
 const sideLogRadius = 0.5;
 const sideLogHeight = 2.5;
 
 //TREE leaves
-const leavesRadiusX = 3.5/2; //scale y = 1/1.75
+const leavesRadiusX = 3.5/2; 
 const leavesRadiusY = 1;
-const leavesMaterial = new THREE.MeshBasicMaterial({ color: 0x1C9013 });
+const leavesMaterial = new THREE.MeshStandardMaterial({ color: 0x1C9013 });
 
 // movement
-const movementSpeed = 10;
+const movementSpeed = 8;
+const rotationSpeed = 1;
 const movementVector = new THREE.Vector3(0, 0, 0);
-var clock;
+
+// Texture
+const heightmapTexture = new THREE.TextureLoader().load('images/heightmap.png');
+const normalmapTexture = new THREE.TextureLoader().load('images/NormalMap.png');
