@@ -19,6 +19,7 @@ var rightArrow = false;
 var upArrow = false;
 var downArrow = false;
 
+var movementVector = new THREE.Vector3(0, 0, 0);
 var clock;
 var target;
 
@@ -40,15 +41,18 @@ function createCamera(){
     'use strict';
 
     var camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 1, 1000);
-    camera.position.set(0, 50, 0);
+    camera.position.set(50, 50, 50);
     camera.lookAt(scene.position);
     cameras.push(camera);
 
-    camera = new THREE.OrthographicCamera( window.innerWidth /-32, window.innerWidth/32, window.innerHeight/32, window.innerHeight/-32, -200, 500 );
+    camera = new THREE.OrthographicCamera(window.innerWidth/-32, window.innerWidth/32, window.innerHeight/32, window.innerHeight/-32, -200, 500 );
     camera.position.set(200, 0, 60);
     cameras.push(camera);
 
-    camera = new THREE.StereoCamera();
+    /*camera = new THREE.StereoCamera();
+
+    camera.aspect = window.innerWidth / window.innerHeight;*/
+   
     cameras.push(camera);
 
 }
@@ -168,7 +172,8 @@ function createHouse() {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(roof, 3));
     geometry.computeVertexNormals();
 
-    var roofMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xff8a3d, 
+    var roofMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
+        color: 0xff8a3d, 
         roughness: 0.8 
     }));
     house.add(roofMesh);
@@ -179,7 +184,7 @@ function createHouse() {
     geometry.computeVertexNormals();
 
     var chimney1Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xffbcbc,
+        color: 0xababab,
         roughness: 0.8
     }));
     house.add(chimney1Mesh);
@@ -190,7 +195,7 @@ function createHouse() {
     geometry.computeVertexNormals();
 
     var chimney2Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xffbcbc, 
+        color: 0xababab, 
         roughness: 0.8 
     }));
     house.add(chimney2Mesh);
@@ -201,7 +206,7 @@ function createHouse() {
     geometry.computeVertexNormals();
 
     var window1Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xCDF6FF, 
+        color: 0x2DBAF3, 
         metalness: 0.1, 
         roughness: 0.1,
         transparent: true, 
@@ -215,7 +220,7 @@ function createHouse() {
     geometry.computeVertexNormals();
 
     var window2Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ 
-        color: 0xCDF6FF,
+        color: 0x2DBAF3,
         metalness: 0.1,
         roughness: 0.1, 
         transparent: true, 
@@ -449,18 +454,23 @@ function showTexture() {
 ////////////
 function update(){
     'use strict';
+    
+    movementVector.set(0,0,0);
 
     const delta = clock.getDelta();
     ovni.rotation.y += rotationSpeed * delta;
 
     const distance = movementSpeed * delta;
 
-    if (movementVector.x != 0 && movementVector.z != 0) {
-        movementVector.normalize();
-        console.log(movementVector);
-    }
+    if(rightArrow) movementVector.x += 1;
+    if(leftArrow) movementVector.x -= 1;
+    if(upArrow) movementVector.z -= 1;
+    if(downArrow) movementVector.z += 1;
+
+    movementVector.normalize();
+    movementVector.multiplyScalar(distance);
     
-    ovni.position.add(movementVector.clone().multiplyScalar(distance));
+    ovni.position.add(movementVector);
     
     lights[7].updateMatrixWorld(); 
     target.position.set(ovni.position.x, 0, ovni.position.z); 
@@ -473,7 +483,25 @@ function update(){
 function render() {
     'use strict';
 
+    /*if(activeCamera == 2) {
+        renderer.setScissorTest(true);
+
+        renderer.setScissor(0, 0, window.innerWidth / 2, window.innerHeight);
+        renderer.setViewport(0, 0, window.innerWidth / 2, window.innerHeight);
+        renderer.render(scene, cameras[2].cameraL);
+
+        renderer.setScissor(window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
+        renderer.setViewport(window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
+        renderer.render(scene, cameras[2].cameraR);
+
+        renderer.setScissorTest(false);
+    }*/
+
     renderer.render(scene, cameras[activeCamera]);
+
+    renderer.setAnimationLoop( function () {
+        renderer.render(scene, cameras[activeCamera]);
+    }); 
 
     update();
 
@@ -505,6 +533,10 @@ function init() {
     generateSkyTexture();
     createSkydoom();
     showTexture();
+
+    document.body.appendChild( VRButton.createButton( renderer ) );
+
+    renderer.xr.enabled = true;
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
@@ -565,35 +597,18 @@ function onKeyDown(e) {
 
         case "ArrowLeft":
             leftArrow = true;
-            if (rightArrow == true)
-                movementVector.x = 0;
-            else
-                movementVector.x = -1;
             break;
 
         case "ArrowRight":
             rightArrow = true;
-            if (leftArrow == true) {
-                movementVector.x = 0;
-            } else {
-                movementVector.x = 1;
-            }
             break;
 
         case "ArrowUp":
             upArrow = true;
-            if(downArrow == true)
-                movementVector.z = 0;
-            else
-                movementVector.z = -1;
             break;
             
         case "ArrowDown":
             downArrow = true;
-            if(upArrow == true)
-                movementVector.z = 0;
-            else
-                movementVector.z = 1;
             break;
 
         case "d" || "D":
@@ -657,23 +672,15 @@ function onKeyUp(e){
     switch (e.key) {
         case "ArrowLeft":
             leftArrow = false;
-            if (rightArrow) movementVector.x = 1;
-            else movementVector.x = 0;
             break;
         case "ArrowRight": // Right Arrow
             rightArrow = false;
-            if (leftArrow) movementVector.x = -1;
-            else movementVector.x = 0;
             break;
         case "ArrowUp": // Up Arrow
             upArrow = false;
-            if (downArrow) movementVector.z = 1;
-            else movementVector.z = 0;
             break;
         case "ArrowDown": // Down Arrow
             downArrow = false;
-            if (upArrow) movementVector.z = -1;
-            else movementVector.z = 0;
             break;
     }
 

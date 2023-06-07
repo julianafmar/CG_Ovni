@@ -51,9 +51,8 @@ const leavesRadiusY = 1;
 const leavesMaterial = new THREE.MeshStandardMaterial({ color: 0x1C9013 });
 
 // movement
-const movementSpeed = 8;
+const movementSpeed = 10;
 const rotationSpeed = 1;
-const movementVector = new THREE.Vector3(0, 0, 0);
 
 // Texture
 const heightmapTexture = new THREE.TextureLoader().load('images/heightmap.png');
