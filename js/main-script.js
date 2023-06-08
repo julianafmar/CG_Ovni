@@ -309,8 +309,8 @@ function createTree(x, y, z, size, rot){
 
 function createBranch(obj, x, y, z, rot, size){
     'use strict'
-    
-    geometry = new THREE.CylinderGeometry(sideLogRadius, sideLogRadius, sideLogHeight*size, 32);
+
+    geometry = new THREE.CylinderGeometry(sideLogRadius*size, sideLogRadius*size, sideLogHeight*size, 32);
     geometry.rotateZ(rot);
     mesh = new THREE.Mesh(geometry, trunkMaterial);
     mesh.position.set(x, y, z);
@@ -402,7 +402,7 @@ function createMoon() {
     scene.add(moon);
     objects.push(moon);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    const directionalLight = new THREE.DirectionalLight(0xFBFEAA, 0.3);
     const angle = -Math.PI / 4;
     const direction = new THREE.Vector3(Math.cos(angle), -1, Math.sin(angle)).normalize();
     directionalLight.position.copy(direction);
@@ -469,13 +469,8 @@ function render() {
         renderer.setScissorTest(false);
     }*/
 
-    renderer.render(scene, cameras[activeCamera]);
-
-    renderer.setAnimationLoop( function () {
-        renderer.render(scene, cameras[activeCamera]);
-    }); 
-
     update();
+    renderer.render(scene, cameras[activeCamera]);
 
 }
 
@@ -491,9 +486,11 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio); 
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
+    document.body.appendChild( VRButton.createButton( renderer ) );
+    renderer.xr.enabled = true;
+    renderer.setAnimationLoop(animate); 
     
-    createScene();
-    createCamera();
     createLights();
     createHouse();
     createOvni();
@@ -505,15 +502,11 @@ function init() {
     createSkydoom();
     showTexture();
 
-    document.body.appendChild( VRButton.createButton( renderer ) );
-
-    renderer.xr.enabled = true;
-
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
     window.addEventListener("keyup", onKeyUp);
 
-    animate();
+    //animate();
 
 }
 
