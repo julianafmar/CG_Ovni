@@ -49,12 +49,6 @@ function createCamera(){
     camera.position.set(200, 0, 60);
     cameras.push(camera);
 
-    /*camera = new THREE.StereoCamera();
-
-    camera.aspect = window.innerWidth / window.innerHeight;*/
-   
-    cameras.push(camera);
-
 }
 
 /////////////////////
@@ -375,7 +369,7 @@ function createOvni() {
     objects.push(cylinder);
 
     var spotLight = new THREE.SpotLight(0xFFFFFF, 1, 200, Math.PI / 4, 0.5);
-    spotLight.position.set(0, bodyRadius - 0.8, 0);
+    spotLight.position.set(0, bodyRadius - 1, 0);
     lights.push(spotLight);
     ovni.add(spotLight);
     target = new THREE.Object3D();
@@ -391,7 +385,7 @@ function createOvni() {
         light.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
         light.rotateX(angle);
         ovni.add(light);
-        ovni.add(lights[i+2]);
+        ovni.add(lights[i+1]);
     }
 
     ovni.position.set(0, 15, 0);
@@ -493,9 +487,8 @@ function init() {
 
     clock = new THREE.Clock();
 
-    renderer = new THREE.WebGLRenderer({
-        antialias: true
-    });
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio); 
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     
@@ -530,8 +523,9 @@ function init() {
 function animate() {
     'use strict';
 
-    requestAnimationFrame(animate);
+    update();
     render();
+    renderer.setAnimationLoop(animate); 
 
 }
 
@@ -643,13 +637,13 @@ function onKeyUp(e){
         case "ArrowLeft":
             leftArrow = false;
             break;
-        case "ArrowRight": // Right Arrow
+        case "ArrowRight":
             rightArrow = false;
             break;
-        case "ArrowUp": // Up Arrow
+        case "ArrowUp":
             upArrow = false;
             break;
-        case "ArrowDown": // Down Arrow
+        case "ArrowDown":
             downArrow = false;
             break;
     }
