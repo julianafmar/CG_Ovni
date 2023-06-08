@@ -91,8 +91,8 @@ function generateFieldTexture() {
 
     // Círculos brancos, amarelos, lilases e azuis-claros
     var colors = ['#FFFFFF', '#FFFF00', '#C8A2C8', '#ADD8E6'];
-    var numCircles = 50;
-    var radiusRange = [1, 5];
+    var numCircles = 500;
+    var radiusRange = [1, 2];
     var margin = 10; // Margin to avoid flowers near the edges
 
     for (var i = 0; i < numCircles; i++) {
@@ -110,7 +110,7 @@ function generateFieldTexture() {
 
     fieldTexture = new THREE.Texture(canvas);
     fieldTexture.wrapS = fieldTexture.wrapT = THREE.RepeatWrapping;
-    fieldTexture.repeat.set(10, 10); 
+    fieldTexture.repeat.set(7, 7); 
     fieldTexture.needsUpdate = true;
 }
 
@@ -210,7 +210,7 @@ function createHouse() {
     house.add(doorMesh);
     objects.push(doorMesh);
 
-    house.position.set(-13,0,-7);
+    house.position.set(-13,-1,-7);
 
     scene.add(house);
 }
@@ -254,10 +254,10 @@ function createTrees(){
 
         while (!uniquePosition){
             x = Math.random() * (maxX - minX) + minX;
-            if (x <= 18 && x >= -5)
+            if (x <= 5 && x >= -18)
                 continue;
             z = Math.random() * (maxZ - minZ) + minZ;
-            if (z <= 11 && z >= -5)
+            if (z <= 4 && z >= -12)
                 continue;
             if (!treePositions.includes({x, z}) && hasMinimumDistance(x, z, treePositions, minTreeDistance)){
                 uniquePosition = true;
