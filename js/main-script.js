@@ -64,7 +64,7 @@ function createLights() {
     for (var i = 0; i < lightNumber; i++) {
         var angle = (i / lightNumber) * Math.PI * 2;
 
-        var pointLight = new THREE.PointLight(0xFFFFFF, 1, 20);
+        var pointLight = new THREE.PointLight(0xFFFFFF, 0.2, 100);
         pointLight.position.set(Math.cos(angle) * lightRadius * 6, -2, Math.sin(angle) * lightRadius * 6);
 
         lights.push(pointLight);
