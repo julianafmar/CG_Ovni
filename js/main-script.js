@@ -58,7 +58,7 @@ function createCamera(){
 function createLights() {
     'use strict';
 
-    var ambientLight = new THREE.AmbientLight(0xf9f8d2, 0.3);
+    var ambientLight = new THREE.AmbientLight(0xf9f8d2, 0.2);
     scene.add(ambientLight);
     lights.push(ambientLight);
 
@@ -412,7 +412,7 @@ function createMoon() {
     moon.position.set(30, 50, 0);
     scene.add(moon);
 
-    const directionalLight = new THREE.DirectionalLight(0xFBFEAA, 0.3);
+    const directionalLight = new THREE.DirectionalLight(0xFBFEAA, 0.2);
     const angle = -Math.PI / 4;
     const direction = new THREE.Vector3(30 - 2 * Math.cos(angle), 50 - 2, 2 * Math.sin(angle)).normalize();
     directionalLight.position.copy(direction);
