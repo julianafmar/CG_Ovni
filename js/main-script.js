@@ -208,7 +208,7 @@ function createHouse() {
     house.add(doorMesh);
     objects.push(doorMesh);
 
-    house.position.set(-13,-1,-7);
+    house.position.set(-13, -5, -7);
 
     scene.add(house);
 
