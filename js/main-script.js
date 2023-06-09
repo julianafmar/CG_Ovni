@@ -412,7 +412,7 @@ function createMoon() {
     scene.add(moon);
     objects.push(moon);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    const directionalLight = new THREE.DirectionalLight(0xFBFEAA, 0.3);
     const angle = -Math.PI / 4;
     const direction = new THREE.Vector3(Math.cos(angle), -1, Math.sin(angle)).normalize();
     directionalLight.position.copy(direction);
