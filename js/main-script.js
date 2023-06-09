@@ -5,14 +5,13 @@ var renderer, scene, mesh, geometry, material, groundMesh;
 var fieldTexture, skyTexture, textureMesh, gradientTexture;
 var cameras = [];
 var activeCamera = 0;
+
 var lights = [];
+var objects = [];
 
 var house = new THREE.Object3D();
 var ovni;
 var trees;
-
-var objects = [];
-var ovniLights = [];
 
 var leftArrow = false;
 var rightArrow = false;
@@ -85,15 +84,13 @@ function generateFieldTexture() {
     canvas.height = 256;
     var ctx = canvas.getContext('2d');
 
-    // Fundo verde claro
     ctx.fillStyle = '#C1E685';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Círculos brancos, amarelos, lilases e azuis-claros
     var colors = ['#FFFFFF', '#FFFF00', '#C8A2C8', '#ADD8E6'];
     var numCircles = 500;
     var radiusRange = [1, 2];
-    var margin = 10; // Margin to avoid flowers near the edges
+    var margin = 10;
 
     for (var i = 0; i < numCircles; i++) {
         var x = Math.random() * (canvas.width - margin * 2) + margin;
@@ -112,6 +109,7 @@ function generateFieldTexture() {
     fieldTexture.wrapS = fieldTexture.wrapT = THREE.RepeatWrapping;
     fieldTexture.repeat.set(7, 7); 
     fieldTexture.needsUpdate = true;
+
 }
 
 function generateSkyTexture() {
@@ -122,15 +120,13 @@ function generateSkyTexture() {
     canvas.height = 1024;
     var ctx = canvas.getContext('2d');
 
-    // Fundo degradê de azul-escuro para violeta-escuro
     var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#00008B'); // Azul-escuro
-    gradient.addColorStop(1, '#8A2BE2'); // Violeta-escuro
+    gradient.addColorStop(0, '#00008B');
+    gradient.addColorStop(1, '#8A2BE2');
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Pontilhado de estrelas brancas
     var numStars = 3000;
     var radiusRange = [0.5, 2];
 
@@ -149,6 +145,7 @@ function generateSkyTexture() {
 
     skyTexture = new THREE.Texture(canvas);
     skyTexture.needsUpdate = true;
+
 }
 
 function createHouse() {
@@ -213,6 +210,7 @@ function createHouse() {
     house.position.set(-13,-1,-7);
 
     scene.add(house);
+
 }
 
 function createField() {
@@ -231,6 +229,7 @@ function createField() {
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.y = -10;
     scene.add(groundMesh);
+
 }
 
 function createTrees(){
@@ -283,6 +282,7 @@ function hasMinimumDistance(x, z, treePositions, minTreeDistance) {
         }
     }
     return true;
+
 }
 
 function createTree(x, y, z, size, rot){
@@ -307,6 +307,7 @@ function createTree(x, y, z, size, rot){
     tree.rotateY(Math.PI*rot)
     
     trees.add(tree);
+
 }
 
 function createBranch(obj, x, y, z, rot, size){
@@ -318,6 +319,7 @@ function createBranch(obj, x, y, z, rot, size){
     mesh.position.set(x, y, z);
     obj.add(mesh);
     objects.push(mesh);
+
 }
 
 function createLeaves(obj, x, y, z, size){
@@ -329,6 +331,7 @@ function createLeaves(obj, x, y, z, size){
     mesh.position.set(x, y, z);
     obj.add(mesh);
     objects.push(mesh);
+
 }
 
 function createSkydoom() {
@@ -340,6 +343,7 @@ function createSkydoom() {
     mesh.position.set(0, 0, 0);
     mesh.rotateX(Math.PI/3);
     scene.add(mesh);
+
 }
 
 function createOvni() {
@@ -392,6 +396,7 @@ function createOvni() {
 
     ovni.position.set(0, 15, 0);
     scene.add(ovni);
+    
 }
 
 function createMoon() {
@@ -456,20 +461,6 @@ function update(){
 /////////////
 function render() {
     'use strict';
-
-    /*if(activeCamera == 2) {
-        renderer.setScissorTest(true);
-
-        renderer.setScissor(0, 0, window.innerWidth / 2, window.innerHeight);
-        renderer.setViewport(0, 0, window.innerWidth / 2, window.innerHeight);
-        renderer.render(scene, cameras[2].cameraL);
-
-        renderer.setScissor(window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-        renderer.setViewport(window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-        renderer.render(scene, cameras[2].cameraR);
-
-        renderer.setScissorTest(false);
-    }*/
 
     renderer.render(scene, cameras[activeCamera]);
 
