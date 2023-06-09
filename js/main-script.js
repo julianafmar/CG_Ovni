@@ -21,6 +21,7 @@ var downArrow = false;
 var movementVector = new THREE.Vector3(0, 0, 0);
 var clock;
 var target;
+var moon;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -57,7 +58,7 @@ function createCamera(){
 function createLights() {
     'use strict';
 
-    var ambientLight = new THREE.AmbientLight(0x5c5c5c);
+    var ambientLight = new THREE.AmbientLight(0xf9f8d2, 0.3);
     scene.add(ambientLight);
     lights.push(ambientLight);
 
@@ -164,7 +165,7 @@ function createHouse() {
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(roof, 3));
     geometry.computeVertexNormals();
-    material = new THREE.MeshStandardMaterial({ color: 0xff8a3d, roughness: 0.8 });
+    material = new THREE.MeshStandardMaterial({ color: 0xFF8A3D, roughness: 0.8 });
     var roofMesh = new THREE.Mesh(geometry, material);
     house.add(roofMesh);
     objects.push(roofMesh);
@@ -172,7 +173,7 @@ function createHouse() {
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(chimney1, 3));
     geometry.computeVertexNormals();
-    material = new THREE.MeshStandardMaterial({ color: 0xababab, roughness: 0.8 });
+    material = new THREE.MeshStandardMaterial({ color: 0xABABAB, roughness: 0.8 });
     var chimney1Mesh = new THREE.Mesh(geometry, material);
     house.add(chimney1Mesh);
     objects.push(chimney1Mesh);
@@ -202,7 +203,7 @@ function createHouse() {
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(door, 3));
     geometry.computeVertexNormals();
-    material = new THREE.MeshStandardMaterial({ color: 0xb17e7e, roughness: 0.2 });
+    material = new THREE.MeshStandardMaterial({ color: 0xB17E7E, roughness: 0.2 });
     var doorMesh = new THREE.Mesh(geometry, material);
     house.add(doorMesh);
     objects.push(doorMesh);
@@ -406,16 +407,16 @@ function createMoon() {
     'use strict';
 
     geometry = new THREE.SphereGeometry(7, 32, 32);
-    material = new THREE.MeshStandardMaterial({ color: 0xFBFEAA, emissive: 0xF8FC91 });
-    var moon = new THREE.Mesh(geometry, material);
+    material = new THREE.MeshStandardMaterial({ color: 0xFAFE85, emissive: 0xF8FC91 });
+    moon = new THREE.Mesh(geometry, material);
     moon.position.set(30, 50, 0);
     scene.add(moon);
-    objects.push(moon);
 
     const directionalLight = new THREE.DirectionalLight(0xFBFEAA, 0.3);
     const angle = -Math.PI / 4;
-    const direction = new THREE.Vector3(Math.cos(angle), -1, Math.sin(angle)).normalize();
+    const direction = new THREE.Vector3(30 - 2 * Math.cos(angle), 50 - 2, 2 * Math.sin(angle)).normalize();
     directionalLight.position.copy(direction);
+    lights.push(directionalLight);
     scene.add(directionalLight);
 
 }
@@ -578,42 +579,45 @@ function onKeyDown(e) {
         case "ArrowDown":
             downArrow = true;
             break;
-
-        case "d" || "D":
-            lights[0].visible = !lights[0].visible;
+        case "D":
+        case "d":
+            lights[8].visible = !lights[8].visible;
             break;
-        
-        case "p" || "P":
-            for(var i = 1; i < lights.length - 1; i++)
+        case "P":
+        case "p":
+            for(var i = 1; i < lights.length - 2; i++)
                 lights[i].visible = !lights[i].visible;
             break;
-
-        case "s" || "S":
+        case "S":
+        case "s":
             lights[7].visible = !lights[7].visible;
             break;
-
-        case "q" || "Q":
+        case "Q":
+        case "q":
             for (let i = 0; i < objects.length; i++){
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshLambertMaterial({ color: c });
             }
+            moon.material = new THREE.MeshLambertMaterial({ color: 0xFAFE85, emissive: 0xF8FC91 });
             break;
-
-        case "w" || "W":
+        case "W":
+        case "w":
             for (let i = 0; i < objects.length; i++){
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshPhongMaterial({ color: c });
             }
+            moon.material = new THREE.MeshPhongMaterial({ color: 0xFAFE85, emissive: 0xF8FC91 });
             break;
-
-        case "e" || "E":
+        case "E":
+        case "e":
             for (let i = 0; i < objects.length; i++){
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshToonMaterial({ color: c });
             }
+            moon.material = new THREE.MeshToonMaterial({ color: 0xFAFE85, emissive: 0xF8FC91 });
             break;
-
-        case "r" || "R":
+        case "R":
+        case "r":
             for (let i = 0; i < objects.length; i++){
                 let c = objects[i].material.color;
                 objects[i].material = new THREE.MeshBasicMaterial({ color: c });
