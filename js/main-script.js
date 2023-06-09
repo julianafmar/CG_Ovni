@@ -264,7 +264,7 @@ function createTrees(){
             }
         }
         let size = sizes[Math.floor(Math.random()*sizes.length)];
-        createTree(x, 0, z, size, Math.random());
+        createTree(x, -3, z, size, Math.random());
     }
 
     scene.add(trees);
@@ -292,7 +292,8 @@ function createTree(x, y, z, size, rot){
     tree.name = 'tree';
 
     geometry = new THREE.CylinderGeometry(mainLogRadius*size, mainLogRadius*size, mainLogHeight*size, 32);
-    mesh = new THREE.Mesh(geometry, trunkMaterial);
+    material = new THREE.MeshStandardMaterial({ color: 0x715A17 });
+    mesh = new THREE.Mesh(geometry, material);
     tree.add(mesh);
     objects.push(mesh);
 
@@ -315,7 +316,8 @@ function createBranch(obj, x, y, z, rot, size){
     
     geometry = new THREE.CylinderGeometry(sideLogRadius, sideLogRadius, sideLogHeight*size, 32);
     geometry.rotateZ(rot);
-    mesh = new THREE.Mesh(geometry, trunkMaterial);
+    material = new THREE.MeshStandardMaterial({ color: 0x715A17 });
+    mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     obj.add(mesh);
     objects.push(mesh);
@@ -327,7 +329,8 @@ function createLeaves(obj, x, y, z, size){
 
     geometry = new THREE.SphereGeometry(leavesRadiusX*size, 32, 32);
     geometry.scale(1, leavesRadiusY*size / (leavesRadiusX*size), 1);
-    mesh = new THREE.Mesh(geometry, leavesMaterial);
+    material = new THREE.MeshStandardMaterial({ color: 0x1C9013 });
+    mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     obj.add(mesh);
     objects.push(mesh);
